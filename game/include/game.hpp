@@ -3,7 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "tilemap.hpp"
+#include <tilemap.hpp>
+
+class Path;
 
 class Game
 {
@@ -14,12 +16,14 @@ public:
 	void Run();
 private:
 	sf::RenderWindow window;
-
+	sf::Sprite* enemySprite;
+	int currentNode = 0;
+	int frameWait = 600;
 	void ProcessEvents();
 	void Render();
 	TileMap tileMap;
-
-	sf::Sprite* CreateTempSprite(const sf::Color &color) const;
+	Path* path;
+	sf::Sprite* CreateTempSprite(const sf::Color &color, int length = 32, int height = 32) const;
 };
 
 #endif

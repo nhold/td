@@ -1,4 +1,5 @@
-#include "..\include\game.hpp"
+#include <game.hpp>
+#include <path.hpp>
 
 Game::Game()
 {
@@ -7,9 +8,10 @@ Game::Game()
 	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
 	tileMap.tileTypes[1] = CreateTempSprite(sf::Color::Black);
 	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
-
-	tileMap.LoadFromFile("tilemap.txt");
+	enemySprite = CreateTempSprite(sf::Color::Red, 16, 16);
+	tileMap.LoadFromFile("tilemap5.txt");
 	tileMap.SaveToFile("tilemapsave.txt");
+	path = new Path(tileMap);
 }
 
 Game::~Game()
@@ -21,6 +23,19 @@ void Game::Run()
 	while (window.isOpen())
 	{
 		ProcessEvents();
+		frameWait -= 1;
+		if (frameWait <= 0)
+		{
+			frameWait = 600;
+			if (currentNode >= path->nodePoints.size())
+			{
+				currentNode = 0;
+			}
+
+			enemySprite->setPosition(path->nodePoints[currentNode].x * 32 + 8, path->nodePoints[currentNode].y * 32 + 8);
+			currentNode++;
+			
+		}
 		Render();
 	}
 }
@@ -41,16 +56,17 @@ void Game::Render()
 {
 	window.clear(sf::Color::Magenta);
 	tileMap.Render(&window);
+	window.draw(*enemySprite);
 	window.display();
 }
 
 // TODO: Extract to an asset helper class.
-sf::Sprite* Game::CreateTempSprite(const sf::Color &color) const
+sf::Sprite* Game::CreateTempSprite(const sf::Color &color, int length, int height) const
 {
 	sf::Texture texture;
-	texture.create(32, 32);
+	texture.create(length, height);
 	sf::Image image;
-	image.create(32, 32, color);
+	image.create(length, height, color);
 	texture.update(image, 0, 0);
 
 	auto sprite = new sf::Sprite(texture);
