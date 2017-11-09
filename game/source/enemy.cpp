@@ -18,6 +18,7 @@ Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, sf::Sprite * aSprite,
 	SetPath(aPath);
 	name = aName;
 	text.setString(name);
+	text.setColor(sf::Color::Magenta);
 	currentNode = 0;
 	std::cout << text.getString().toAnsiString() << " constructor 1 " << std::endl;
 }
@@ -33,6 +34,7 @@ Enemy::Enemy(const Enemy & otherEnemy)
 	currentNode = otherEnemy.currentNode;
 	name = otherEnemy.name;
 	text.setString(name);
+	text.setColor(sf::Color::Magenta);
 	SetPosition(otherEnemy.sprite->getPosition());
 
 	if (otherEnemy.text.getFont() != nullptr)
@@ -116,6 +118,7 @@ void Enemy::Update()
 	else 
 	{
 		currentNode = 0;
+		SetPosition(Game::GridToWorld(nodePoints[currentNode]));
 		std::cout << text.getString().toAnsiString() << std::endl;
 	}
 }

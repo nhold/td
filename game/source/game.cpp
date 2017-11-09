@@ -21,7 +21,7 @@ Game::Game() : distribution(0,1)
 	
 	debugText.setFont(debugFont);
 	debugText.setCharacterSize(14);
-
+	debugText.setColor(sf::Color::Magenta);
 	CreateTypes();
 }
 
