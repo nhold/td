@@ -30,3 +30,8 @@ optimized "${CMAKE_SOURCE_DIR}/game/thirdparty/lib/release64/sfml-system.lib"
 optimized "${CMAKE_SOURCE_DIR}/game/thirdparty/lib/release64/sfml-graphics.lib"
 optimized "${CMAKE_SOURCE_DIR}/game/thirdparty/lib/release64/sfml-audio.lib"
 optimized "${CMAKE_SOURCE_DIR}/game/thirdparty/lib/release64/sfml-network.lib")
+
+set (assetDir "${CMAKE_SOURCE_DIR}/assets")
+set (assetDestination "${CMAKE_CURRENT_BINARY_DIR}")
+
+file(COPY "${assetDir}" DESTINATION "${assetDestination}")
