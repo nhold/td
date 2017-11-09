@@ -23,7 +23,7 @@ public:
 	void SaveToFile(const std::string & fileName);
 	void LoadFromFile(const std::string& fileName);
 	bool WithinBounds(sf::Vector2i point);
-	static const int tileMapSize = 5;
+	static const int tileMapSize = 20;
 	int tiles[TileMap::tileMapSize][TileMap::tileMapSize];
 	sf::Sprite* tileTypes[10];
 

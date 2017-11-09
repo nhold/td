@@ -1,21 +1,51 @@
 #include <game.hpp>
 #include <path.hpp>
+#include <enemy.hpp>
 
-Game::Game()
+#include <iostream>
+
+float Game::deltaTime = 0.f;
+
+Game::Game() : distribution(0,1)
 {
-	window.create(sf::VideoMode(640, 480), "TD");
+	window.create(sf::VideoMode(640, 640), "TD");
 
 	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
-	tileMap.tileTypes[1] = CreateTempSprite(sf::Color::Black);
+	tileMap.tileTypes[1] = CreateTempSprite(sf::Color(125, 68, 29));
 	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
 	enemySprite = CreateTempSprite(sf::Color::Red, 16, 16);
-	tileMap.LoadFromFile("tilemap5.txt");
-	tileMap.SaveToFile("tilemapsave.txt");
+	tileMap.LoadFromFile("assets/level1.txt");
+	tileMap.SaveToFile("assets/tilemapsave.txt");
 	path = new Path(tileMap);
+	debugFont.loadFromFile("assets/Consolas.ttf");
+	
+	debugText.setFont(debugFont);
+	debugText.setCharacterSize(14);
+
+	CreateTypes();
 }
 
 Game::~Game()
 {
+}
+
+void Game::Update()
+{
+	for (auto it = enemies.begin(); it != enemies.end(); ++it)
+	{
+		(*it).Update();
+	}
+	
+	debugText.setString("Delta time: " + std::to_string(deltaTime) + "\n" + "FPS: " + std::to_string(1.f/deltaTime));
+
+	/*spawnTimer -= deltaTime;
+	if (spawnTimer <= 0)
+	{
+		spawnTimer = 1.f * enemies.size();
+
+		
+		
+	}*/
 }
 
 void Game::Run()
@@ -23,21 +53,19 @@ void Game::Run()
 	while (window.isOpen())
 	{
 		ProcessEvents();
-		frameWait -= 1;
-		if (frameWait <= 0)
-		{
-			frameWait = 600;
-			if (currentNode >= path->nodePoints.size())
-			{
-				currentNode = 0;
-			}
-
-			enemySprite->setPosition(path->nodePoints[currentNode].x * 32 + 8, path->nodePoints[currentNode].y * 32 + 8);
-			currentNode++;
-			
-		}
+		Update();
 		Render();
+
+		deltaTime = clock.restart().asSeconds();
 	}
+}
+
+sf::Vector2f Game::GridToWorld(sf::Vector2i gridPoint)
+{
+	sf::Vector2f worldPoint;
+	worldPoint.x = gridPoint.x * 32 + 8;
+	worldPoint.y = gridPoint.y * 32 + 8;
+	return worldPoint;
 }
 
 void Game::ProcessEvents()
@@ -49,14 +77,57 @@ void Game::ProcessEvents()
 		{
 			window.close();
 		}
+
+		if (event.type == sf::Event::KeyPressed)
+		{
+			if (event.key.code == sf::Keyboard::A)
+			{
+				int dice_roll = distribution(generator);
+				auto eT = enemyTypes[dice_roll];
+				eT.SetName(eT.GetName() + " --ID:-- " + std::to_string(enemies.size()));
+				enemies.push_back(eT);
+			}
+
+			if (event.key.code == sf::Keyboard::D)
+			{
+				enemies.pop_back();
+			}
+		}
 	}
+}
+
+void Game::CreateTypes()
+{
+	Enemy enemy1(50, 25, 5, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
+	enemy1.SetPosition(GridToWorld(path->nodePoints[0]));
+	enemy1.SetFont(debugFont);
+
+	Enemy enemy2(50, 25, 5, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
+	enemy2.SetPosition(GridToWorld(path->nodePoints[0]));
+	enemy2.SetFont(debugFont);
+
+	enemyTypes.push_back(enemy1);
+	enemyTypes.push_back(enemy2);
 }
 
 void Game::Render()
 {
 	window.clear(sf::Color::Magenta);
 	tileMap.Render(&window);
-	window.draw(*enemySprite);
+
+
+	for (auto it = enemies.begin(); it != enemies.end(); ++it)
+	{
+		window.draw((*it).GetText());
+	}
+
+	for (auto it = enemies.begin(); it != enemies.end(); ++it)
+	{
+		window.draw(*(*it).GetSprite());
+	}
+
+
+	window.draw(debugText);
 	window.display();
 }
 
@@ -73,4 +144,18 @@ sf::Sprite* Game::CreateTempSprite(const sf::Color &color, int length, int heigh
 	sprite->setColor(color);
 	
 	return sprite;
+}
+
+sf::Texture& Game::GetTexture(std::string fileName)
+{
+	auto it = textureCache.find(fileName);
+
+	if (it != textureCache.end())
+		return (*it).second;
+
+	sf::Texture tex;
+	tex.loadFromFile(fileName);
+	textureCache[fileName] = tex;
+
+	return textureCache[fileName];
 }
