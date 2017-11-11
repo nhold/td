@@ -4,11 +4,14 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <tilemap.hpp>
+#include <buildingmap.hpp>
+#include <tower.hpp>
 #include <map>
 #include <random>
 
 class Path;
 class Enemy;
+class Tower;
 
 class Game
 {
@@ -34,19 +37,25 @@ private:
 	void Render();
 	sf::Clock clock;
 	TileMap tileMap;
+	BuildingMap buildingMap;
 	Path* path;
 	sf::Sprite* CreateTempSprite(const sf::Color &color, int length = 32, int height = 32) const;
 	sf::Text debugText;
 	sf::Font debugFont;
 
-	std::vector<Enemy> enemies;
+	std::vector<Enemy*> enemies;
 	std::vector<Enemy> enemyTypes;
+
+	std::vector<Tower*> towers;
+	std::vector<Tower> towerTypes;
+
 	float spawnTimer = 2.5f;
 	sf::Texture& GetTexture(std::string fileName);
 	std::default_random_engine generator;
 	std::uniform_int_distribution<int> distribution;
 	std::map<std::string, sf::Texture> textureCache;
 	sf::Sprite cursor;
+	bool debugEntities;
 };
 
 #endif
