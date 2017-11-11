@@ -7,6 +7,16 @@
 
 float Game::deltaTime = 0.f;
 
+// TODO Enemy spawner.
+/*spawnTimer -= deltaTime;
+if (spawnTimer <= 0)
+{
+spawnTimer = 1.f * enemies.size();
+
+
+
+}*/
+
 Game::Game() : distribution(0,1)
 {
 	window.create(sf::VideoMode(640, 640), "TD");
@@ -44,15 +54,19 @@ void Game::Update()
 		"\n" + "FPS: " + std::to_string(1.f/deltaTime) +
 		"\n" + "Mouse Pos: " + ToString(sf::Mouse::getPosition()));
 	
-	cursor.setPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
-	/*spawnTimer -= deltaTime;
-	if (spawnTimer <= 0)
-	{
-		spawnTimer = 1.f * enemies.size();
+	auto grid = WorldToArray(sf::Vector2f(sf::Mouse::getPosition(window)));
 
-		
-		
-	}*/
+	if (this->tileMap.tiles[grid.x][grid.y] == 1)
+	{
+		cursor.setColor(sf::Color::Red);
+	}
+	else 
+	{
+		cursor.setColor(sf::Color::Black);
+	}
+
+	cursor.setPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
+
 }
 
 void Game::Run()
@@ -80,6 +94,14 @@ sf::Vector2f Game::WorldToGrid(sf::Vector2f worldPosition)
 	sf::Vector2f gridPoint;
 	gridPoint.x = static_cast<int>((worldPosition.x / 32)) * 32;
 	gridPoint.y = static_cast<int>((worldPosition.y / 32)) * 32;
+	return gridPoint;
+}
+
+sf::Vector2i Game::WorldToArray(sf::Vector2f worldPosition)
+{
+	sf::Vector2i gridPoint;
+	gridPoint.x = static_cast<int>((worldPosition.x / 32));
+	gridPoint.y = static_cast<int>((worldPosition.y / 32));
 	return gridPoint;
 }
 

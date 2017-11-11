@@ -20,7 +20,8 @@ public:
 
 	static float Game::deltaTime;
 	static sf::Vector2f GridToWorld(sf::Vector2i gridPoint);
-	static sf::Vector2f WorldToGrid(sf::Vector2f worldPoint);
+	static sf::Vector2f WorldToGrid(sf::Vector2f worldPosition);
+	static sf::Vector2i WorldToArray(sf::Vector2f worldPosition);
 
 private:
 	sf::RenderWindow window;
