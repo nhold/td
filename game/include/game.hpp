@@ -20,6 +20,7 @@ public:
 
 	static float Game::deltaTime;
 	static sf::Vector2f GridToWorld(sf::Vector2i gridPoint);
+	static sf::Vector2f WorldToGrid(sf::Vector2f worldPoint);
 
 private:
 	sf::RenderWindow window;
@@ -44,6 +45,7 @@ private:
 	std::default_random_engine generator;
 	std::uniform_int_distribution<int> distribution;
 	std::map<std::string, sf::Texture> textureCache;
+	sf::Sprite cursor;
 };
 
 #endif

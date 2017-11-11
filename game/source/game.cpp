@@ -1,6 +1,7 @@
 #include <game.hpp>
 #include <path.hpp>
 #include <enemy.hpp>
+#include <vectorutility.hpp>
 
 #include <iostream>
 
@@ -23,6 +24,9 @@ Game::Game() : distribution(0,1)
 	debugText.setCharacterSize(14);
 	debugText.setColor(sf::Color::Magenta);
 	CreateTypes();
+
+	cursor.setTexture(GetTexture("assets/cursor.png"));
+	cursor.setPosition(0, 0);
 }
 
 Game::~Game()
@@ -36,8 +40,11 @@ void Game::Update()
 		(*it).Update();
 	}
 	
-	debugText.setString("Delta time: " + std::to_string(deltaTime) + "\n" + "FPS: " + std::to_string(1.f/deltaTime));
-
+	debugText.setString("Delta time: " + std::to_string(deltaTime) + 
+		"\n" + "FPS: " + std::to_string(1.f/deltaTime) +
+		"\n" + "Mouse Pos: " + ToString(sf::Mouse::getPosition()));
+	
+	cursor.setPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
 	/*spawnTimer -= deltaTime;
 	if (spawnTimer <= 0)
 	{
@@ -66,6 +73,14 @@ sf::Vector2f Game::GridToWorld(sf::Vector2i gridPoint)
 	worldPoint.x = gridPoint.x * 32 + 8;
 	worldPoint.y = gridPoint.y * 32 + 8;
 	return worldPoint;
+}
+
+sf::Vector2f Game::WorldToGrid(sf::Vector2f worldPosition)
+{
+	sf::Vector2f gridPoint;
+	gridPoint.x = static_cast<int>((worldPosition.x / 32)) * 32;
+	gridPoint.y = static_cast<int>((worldPosition.y / 32)) * 32;
+	return gridPoint;
 }
 
 void Game::ProcessEvents()
@@ -126,6 +141,7 @@ void Game::Render()
 		window.draw(*(*it).GetSprite());
 	}
 
+	window.draw(cursor);
 
 	window.draw(debugText);
 	window.display();

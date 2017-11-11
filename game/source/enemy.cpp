@@ -6,6 +6,17 @@
 
 Enemy::Enemy()
 {
+	currentHealth = 1;
+	maximumHealth = 1;
+	movementSpeed = 1;
+	damage = 1;
+	sprite = nullptr;
+	
+	name = "null";
+	text.setString(name);
+	text.setColor(sf::Color::Magenta);
+	currentNode = 0;
+	std::cout << text.getString().toAnsiString() << " Default Constructor." << std::endl;
 }
 
 Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, sf::Sprite * aSprite, Path * aPath, std::string aName)
@@ -20,7 +31,7 @@ Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, sf::Sprite * aSprite,
 	text.setString(name);
 	text.setColor(sf::Color::Magenta);
 	currentNode = 0;
-	std::cout << text.getString().toAnsiString() << " constructor 1 " << std::endl;
+	std::cout << text.getString().toAnsiString() << " Data Constructor. " << std::endl;
 }
 
 Enemy::Enemy(const Enemy & otherEnemy)
@@ -29,13 +40,18 @@ Enemy::Enemy(const Enemy & otherEnemy)
 	maximumHealth = otherEnemy.maximumHealth;
 	movementSpeed = otherEnemy.movementSpeed;
 	damage = otherEnemy.damage;
-	sprite = new sf::Sprite(*otherEnemy.sprite);
+	if (otherEnemy.sprite != nullptr)
+	{
+		sprite = new sf::Sprite(*otherEnemy.sprite);
+		SetPosition(otherEnemy.sprite->getPosition());
+	}
+
 	nodePoints = otherEnemy.nodePoints;
 	currentNode = otherEnemy.currentNode;
 	name = otherEnemy.name;
 	text.setString(name);
 	text.setColor(sf::Color::Magenta);
-	SetPosition(otherEnemy.sprite->getPosition());
+	
 
 	if (otherEnemy.text.getFont() != nullptr)
 	{
@@ -43,7 +59,7 @@ Enemy::Enemy(const Enemy & otherEnemy)
 		text.setCharacterSize(12);
 	}
 
-	std::cout << text.getString().toAnsiString() << " Copy COnstructor " << std::endl;
+	std::cout << text.getString().toAnsiString() << " Copy Constructor" << std::endl;
 }
 
 Enemy::~Enemy()
@@ -59,7 +75,7 @@ void Enemy::SetPath(Path* path)
 
 	nodePoints = path->nodePoints;
 	currentNode = 0;
-	std::cout << text.getString().toAnsiString() <<  " Setpath " << std::endl;
+	std::cout << text.getString().toAnsiString() <<  " Set Path " << std::endl;
 }
 
 void Enemy::SetSprite(sf::Sprite * aSprite)
@@ -107,6 +123,9 @@ void Enemy::SetName(std::string aName)
 	
 void Enemy::Update()
 {
+	if (nodePoints.size() == 0)
+		return;
+
 	if (currentNode < nodePoints.size())
 	{
 		text.setString(name + " : " + std::to_string(currentNode) + " \ " + std::to_string(nodePoints.size()));
