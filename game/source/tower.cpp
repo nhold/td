@@ -11,6 +11,7 @@ Tower::Tower()
 	numberOfTargets = 1;
 	radius = 1.f;
 	fireRate = 1.f;
+	cost = 1;
 	currentRate = fireRate;
 	sprite = nullptr;
 	name = "null";
@@ -20,13 +21,14 @@ Tower::Tower()
 	std::cout << text.getString().toAnsiString() << " Default Constructor." << std::endl;
 }
 
-Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, sf::Sprite* aSprite, std::string aName)
+Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* aSprite, std::string aName)
 {
 	damage = aDamage;
 	numberOfTargets = allowedTargetCount;
 	this->buildTime = buildTime;
 	this->radius = radius;
 	this->fireRate = fireRate;
+	this->cost = cost;
 	currentRate = fireRate;
 	SetSprite(aSprite);
 	name = aName;
@@ -43,6 +45,7 @@ Tower::Tower(const Tower & otherTower)
 	this->buildTime = otherTower.buildTime;
 	this->radius = otherTower.radius;
 	this->fireRate = otherTower.fireRate;
+	this->cost = otherTower.cost;
 	currentRate = fireRate;
 	if (otherTower.sprite != nullptr)
 	{

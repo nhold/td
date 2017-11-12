@@ -41,6 +41,7 @@ private:
 	Path* path;
 	sf::Sprite* CreateTempSprite(const sf::Color &color, int length = 32, int height = 32) const;
 	sf::Text debugText;
+	sf::Text goldText;
 	sf::Font debugFont;
 
 	std::vector<Enemy*> enemies;
@@ -50,6 +51,7 @@ private:
 	std::vector<Tower> towerTypes;
 
 	float spawnTimer = 2.5f;
+	int gold = 10000;
 	sf::Texture& GetTexture(std::string fileName);
 	std::default_random_engine generator;
 	std::uniform_int_distribution<int> distribution;

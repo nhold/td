@@ -11,7 +11,7 @@ class Tower
 {
 public:
 	Tower();
-	Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, sf::Sprite* aSprite, std::string aName);
+	Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* aSprite, std::string aName);
 	Tower(const Tower& otherEnemy);
 	~Tower();
 
@@ -21,6 +21,7 @@ public:
 	bool isBuilding;
 	float radius;
 	float fireRate;
+	int cost;
 
 	void SetPosition(float x, float y);
 	void SetPosition(sf::Vector2f newPosition);

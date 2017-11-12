@@ -14,7 +14,7 @@ if (spawnTimer <= 0)
 spawnTimer = 1.f * enemies.size();
 }*/
 
-Game::Game() : distribution(0,1)
+Game::Game() : distribution(0, 1)
 {
 	window.create(sf::VideoMode(640, 640), "TD");
 
@@ -26,10 +26,15 @@ Game::Game() : distribution(0,1)
 	tileMap.SaveToFile("assets/tilemapsave.txt");
 	path = new Path(tileMap);
 	debugFont.loadFromFile("assets/Consolas.ttf");
-	
+
 	debugText.setFont(debugFont);
 	debugText.setCharacterSize(14);
 	debugText.setColor(sf::Color::Magenta);
+
+	goldText.setFont(debugFont);
+	goldText.setCharacterSize(14);
+	goldText.setColor(sf::Color::Blue);
+	goldText.setString("Gold: " + std::to_string(gold));
 	CreateTypes();
 
 	cursor.setTexture(GetTexture("assets/cursor.png"));
@@ -82,32 +87,47 @@ void Game::Update()
 	{
 		(*it)->Update(enemies);
 	}
-	
-	debugText.setString("Delta time: " + std::to_string(deltaTime) + 
-		"\n" + "FPS: " + std::to_string(1.f/deltaTime) +
+
+	debugText.setString("\n\n\n\n\nDelta time: " + std::to_string(deltaTime) +
+		"\n" + "FPS: " + std::to_string(1.f / deltaTime) +
 		"\n" + "Mouse Pos: " + ToString(sf::Mouse::getPosition()) +
 		"\n" + "Mouse Pressed: " + std::to_string((sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))));
+
+	auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
 	
-	auto grid = WorldToArray(sf::Vector2f(sf::Mouse::getPosition(window)));
+	if (mousePosition.x >= 0 || mousePosition.y >= 0)
+	{
+		auto grid = WorldToArray(mousePosition);
 
-	if (this->tileMap.tiles[grid.x][grid.y] == 1 || this->buildingMap.isBlocked[grid.x][grid.y])
-	{
-		cursor.setColor(sf::Color::Red);
-	}
-	else 
-	{
-		cursor.setColor(sf::Color::Black);
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+		if (this->tileMap.tiles[grid.x][grid.y] == 1 || this->buildingMap.isBlocked[grid.x][grid.y])
 		{
-			this->buildingMap.isBlocked[grid.x][grid.y] = true;
-			Tower* tower = new Tower(towerTypes[0]);
-			tower->isBuilding = true;
-			tower->SetPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
-			towers.push_back(tower);
+			cursor.setColor(sf::Color::Red);
 		}
-	}
+		else
+		{
+			cursor.setColor(sf::Color::Black);
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			{
+				if (towerTypes[0].cost <= gold)
+				{
+					this->buildingMap.isBlocked[grid.x][grid.y] = true;
+					Tower* tower = new Tower(towerTypes[0]);
+					tower->isBuilding = true;
+					tower->SetPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
+					towers.push_back(tower);
+					gold -= towerTypes[0].cost;
+					goldText.setString("Gold: " + std::to_string(gold));
+					std::cout << "What is happening" << std::endl;
+				}
+				else
+				{
+					cursor.setColor(sf::Color::Blue);
+				}
+			}
+		}
 
-	cursor.setPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
+		cursor.setPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
+	}
 }
 
 void Game::Run()
@@ -115,6 +135,7 @@ void Game::Run()
 	while (window.isOpen())
 	{
 		ProcessEvents();
+
 		Update();
 		Render();
 
@@ -191,18 +212,18 @@ void Game::ProcessEvents()
 
 void Game::CreateTypes()
 {
-	Enemy enemy1(50, 25, 5, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
+	Enemy enemy1(50, 25, 5, 10, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
 	enemy1.SetPosition(GridToWorld(path->nodePoints[0]));
 	enemy1.SetFont(debugFont);
 
-	Enemy enemy2(50, 25, 5, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
+	Enemy enemy2(50, 25, 5, 12, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
 	enemy2.SetPosition(GridToWorld(path->nodePoints[0]));
 	enemy2.SetFont(debugFont);
 
 	enemyTypes.push_back(enemy1);
 	enemyTypes.push_back(enemy2);
 
-	Tower tower1(2, 1, 5.f, 50.f, 1.f, new sf::Sprite(GetTexture("assets/tower1.png")), "Tower One");
+	Tower tower1(2, 1, 5.f, 50.f, 1.f, 25, new sf::Sprite(GetTexture("assets/tower1.png")), "Tower One");
 	tower1.SetFont(debugFont);
 	towerTypes.push_back(tower1);
 }
@@ -223,6 +244,7 @@ void Game::Render()
 		window.draw(*(*it)->GetSprite());
 	}
 
+	
 	if (debugEntities)
 	{
 		for (auto it = enemies.begin(); it != enemies.end(); ++it)
@@ -237,7 +259,7 @@ void Game::Render()
 	}
 
 	window.draw(cursor);
-
+	window.draw(goldText);
 	window.draw(debugText);
 	window.display();
 }
@@ -253,7 +275,7 @@ sf::Sprite* Game::CreateTempSprite(const sf::Color &color, int length, int heigh
 
 	auto sprite = new sf::Sprite(texture);
 	sprite->setColor(color);
-	
+
 	return sprite;
 }
 

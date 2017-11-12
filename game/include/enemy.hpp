@@ -13,7 +13,7 @@ class Enemy
 {
 public:
 	Enemy();
-	Enemy(int aHealth, int aMovementSpeed, int aDamage, sf::Sprite* aSprite, Path* aPath, std::string aName);
+	Enemy(int aHealth, int aMovementSpeed, int aDamage, int worth, sf::Sprite* aSprite, Path* aPath, std::string aName);
 	Enemy(const Enemy& otherEnemy);
 	~Enemy();
 
@@ -21,6 +21,7 @@ public:
 	int maximumHealth;
 	int movementSpeed;
 	int damage;
+	int worth;
 
 	void SetPosition(float x, float y);
 	void SetPosition(sf::Vector2f newPosition);

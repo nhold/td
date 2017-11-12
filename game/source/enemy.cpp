@@ -11,7 +11,8 @@ Enemy::Enemy()
 	movementSpeed = 1;
 	damage = 1;
 	sprite = nullptr;
-	
+	worth = 1;
+
 	name = "null";
 	text.setString(name);
 	text.setColor(sf::Color::Magenta);
@@ -19,7 +20,7 @@ Enemy::Enemy()
 	std::cout << text.getString().toAnsiString() << " Default Constructor." << std::endl;
 }
 
-Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, sf::Sprite * aSprite, Path * aPath, std::string aName)
+Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, int worth, sf::Sprite * aSprite, Path * aPath, std::string aName)
 {
 	currentHealth = aHealth;
 	maximumHealth = currentHealth;
@@ -28,6 +29,7 @@ Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, sf::Sprite * aSprite,
 	SetSprite(aSprite);
 	SetPath(aPath);
 	name = aName;
+	this->worth = worth;
 	text.setString(name);
 	text.setColor(sf::Color::Magenta);
 	currentNode = 0;
