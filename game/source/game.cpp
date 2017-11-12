@@ -17,7 +17,7 @@ spawnTimer = 1.f * enemies.size();
 Game::Game() : distribution(0, 1)
 {
 	window.create(sf::VideoMode(640, 640), "TD");
-
+	gold = 100;
 	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
 	tileMap.tileTypes[1] = CreateTempSprite(sf::Color(125, 68, 29));
 	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
@@ -34,7 +34,7 @@ Game::Game() : distribution(0, 1)
 	goldText.setFont(debugFont);
 	goldText.setCharacterSize(14);
 	goldText.setColor(sf::Color::Blue);
-	goldText.setString("Gold: " + std::to_string(gold));
+
 	CreateTypes();
 
 	cursor.setTexture(GetTexture("assets/cursor.png"));
@@ -61,6 +61,7 @@ Game::~Game()
 
 void Game::Update()
 {
+	// Best to extract this to enemy system?
 	std::vector<Enemy*> deadVector;
 
 	for (auto it = enemies.begin(); it != enemies.end(); ++it)
@@ -78,6 +79,8 @@ void Game::Update()
 
 		if (killIt != enemies.end())
 		{
+			gold += (*killIt)->worth;
+			goldText.setString("Gold: " + std::to_string(gold));
 			enemies.erase(killIt);
 			delete (*it);
 		}
@@ -132,6 +135,8 @@ void Game::Update()
 
 void Game::Run()
 {
+	Initialise();
+
 	while (window.isOpen())
 	{
 		ProcessEvents();
@@ -212,20 +217,25 @@ void Game::ProcessEvents()
 
 void Game::CreateTypes()
 {
-	Enemy enemy1(50, 25, 5, 10, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
+	Enemy enemy1(10, 25, 5, 10, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
 	enemy1.SetPosition(GridToWorld(path->nodePoints[0]));
 	enemy1.SetFont(debugFont);
 
-	Enemy enemy2(50, 25, 5, 12, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
+	Enemy enemy2(10, 25, 5, 12, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
 	enemy2.SetPosition(GridToWorld(path->nodePoints[0]));
 	enemy2.SetFont(debugFont);
 
 	enemyTypes.push_back(enemy1);
 	enemyTypes.push_back(enemy2);
 
-	Tower tower1(2, 1, 5.f, 50.f, 1.f, 25, new sf::Sprite(GetTexture("assets/tower1.png")), "Tower One");
+	Tower tower1(2, 1, 5.f, 100.f, 1.f, 25, new sf::Sprite(GetTexture("assets/tower1.png")), "Tower One");
 	tower1.SetFont(debugFont);
 	towerTypes.push_back(tower1);
+}
+
+void Game::Initialise()
+{
+	goldText.setString("Gold: " + std::to_string(gold));
 }
 
 void Game::Render()

@@ -25,6 +25,7 @@ Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, int worth, sf::Sprite
 	currentHealth = aHealth;
 	maximumHealth = currentHealth;
 	movementSpeed = aMovementSpeed;
+
 	damage = aDamage;
 	SetSprite(aSprite);
 	SetPath(aPath);
@@ -42,6 +43,7 @@ Enemy::Enemy(const Enemy & otherEnemy)
 	maximumHealth = otherEnemy.maximumHealth;
 	movementSpeed = otherEnemy.movementSpeed;
 	damage = otherEnemy.damage;
+	worth = otherEnemy.worth;
 	if (otherEnemy.sprite != nullptr)
 	{
 		sprite = new sf::Sprite(*otherEnemy.sprite);

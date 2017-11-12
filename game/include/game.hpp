@@ -33,6 +33,7 @@ private:
 	float frameWait = 0.2f;
 	void ProcessEvents();
 	void CreateTypes();
+	void Initialise();
 	void Update();
 	void Render();
 	sf::Clock clock;
@@ -51,7 +52,7 @@ private:
 	std::vector<Tower> towerTypes;
 
 	float spawnTimer = 2.5f;
-	int gold = 10000;
+	int gold;
 	sf::Texture& GetTexture(std::string fileName);
 	std::default_random_engine generator;
 	std::uniform_int_distribution<int> distribution;
