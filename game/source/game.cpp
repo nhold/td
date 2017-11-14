@@ -151,17 +151,14 @@ void Game::Run()
 sf::Vector2f Game::GridToWorld(sf::Vector2i gridPoint)
 {
 	sf::Vector2f worldPoint;
-	worldPoint.x = gridPoint.x * 32 + 8;
-	worldPoint.y = gridPoint.y * 32 + 8;
+	worldPoint.x = gridPoint.x * 32 + 16;
+	worldPoint.y = gridPoint.y * 32 + 16;
 	return worldPoint;
 }
 
 sf::Vector2f Game::WorldToGrid(sf::Vector2f worldPosition)
 {
-	sf::Vector2f gridPoint;
-	gridPoint.x = static_cast<int>((worldPosition.x / 32)) * 32;
-	gridPoint.y = static_cast<int>((worldPosition.y / 32)) * 32;
-	return gridPoint;
+	return GridToWorld(WorldToArray(worldPosition));
 }
 
 sf::Vector2i Game::WorldToArray(sf::Vector2f worldPosition)
