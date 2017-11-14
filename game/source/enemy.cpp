@@ -85,6 +85,7 @@ void Enemy::SetPath(Path* path)
 void Enemy::SetSprite(sf::Sprite * aSprite)
 {
 	sprite = new sf::Sprite(*aSprite);
+	sprite->setOrigin(sprite->getTextureRect().width*0.5f, sprite->getTextureRect().height*0.5f);
 }
 
 void Enemy::SetPosition(float x, float y)
@@ -153,7 +154,7 @@ bool Enemy::AtCurrentNode()
 	worldPosition = Game::GridToWorld(nodePoints[currentNode]);
 	sf::Vector2f direction = worldPosition - sprite->getPosition();
 
-	if (Magnitude(direction) <= movementSpeed)
+	if (Magnitude(direction) <= movementSpeed * Game::deltaTime)
 	{
 		return true;
 	}
@@ -165,11 +166,9 @@ void Enemy::MoveToCurrentNode()
 {
 	sf::Vector2f floatVersion;
 
-	auto curNode = nodePoints[currentNode];
-	floatVersion.x = curNode.x * 32 + 8;
-	floatVersion.y = curNode.y * 32 + 8;
+	auto currentNodeWorldPosition = Game::GridToWorld(nodePoints[currentNode]);
 
-	sf::Vector2f direction = floatVersion - sprite->getPosition();
+	sf::Vector2f direction = currentNodeWorldPosition - sprite->getPosition();
 	direction = Normalise(direction);
 	direction = Scale(direction, movementSpeed * Game::deltaTime);
 
