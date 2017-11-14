@@ -23,7 +23,6 @@ Game::Game() : distribution(0, 1)
 	window.create(sf::VideoMode(640, 640), "TD");
 
 	gold = 100;
-	baseHealth = 100;
 
 	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
 	tileMap.tileTypes[1] = CreateTempSprite(sf::Color(125, 68, 29));
