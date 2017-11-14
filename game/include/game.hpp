@@ -12,6 +12,7 @@
 class Path;
 class Enemy;
 class Tower;
+class Base;
 
 class Game
 {
@@ -52,6 +53,7 @@ private:
 	std::vector<Tower> towerTypes;
 
 	float spawnTimer = 2.5f;
+	Base* base;
 	int gold;
 	sf::Texture& GetTexture(std::string fileName);
 	std::default_random_engine generator;

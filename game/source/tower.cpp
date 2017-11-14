@@ -78,6 +78,7 @@ Tower::~Tower()
 void Tower::SetSprite(sf::Sprite * aSprite)
 {
 	sprite = new sf::Sprite(*aSprite);
+	sprite->setOrigin(sprite->getTextureRect().width*0.5f, sprite->getTextureRect().height*0.5f);
 }
 
 void Tower::SetPosition(float x, float y)

@@ -85,7 +85,7 @@ void Enemy::SetPath(Path* path)
 void Enemy::SetSprite(sf::Sprite * aSprite)
 {
 	sprite = new sf::Sprite(*aSprite);
-	sprite->setOrigin(sprite->getTextureRect().width*0.5f, sprite->getTextureRect().height*0.5f);
+	sprite->setOrigin(sprite->getTextureRect().width*0.5f, sprite->getTextureRect().height*0.9f);
 }
 
 void Enemy::SetPosition(float x, float y)

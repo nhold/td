@@ -1,9 +1,13 @@
 #include <game.hpp>
+
+#include <iostream>
+
 #include <path.hpp>
 #include <enemy.hpp>
 #include <vectorutility.hpp>
+#include <base.hpp>
 
-#include <iostream>
+
 
 float Game::deltaTime = 0.f;
 
@@ -17,15 +21,20 @@ spawnTimer = 1.f * enemies.size();
 Game::Game() : distribution(0, 1)
 {
 	window.create(sf::VideoMode(640, 640), "TD");
+
 	gold = 100;
+	baseHealth = 100;
+
 	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
 	tileMap.tileTypes[1] = CreateTempSprite(sf::Color(125, 68, 29));
 	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
 	enemySprite = CreateTempSprite(sf::Color::Red, 16, 16);
+
 	tileMap.LoadFromFile("assets/level1.txt");
 	tileMap.SaveToFile("assets/tilemapsave.txt");
-	path = new Path(tileMap);
 	debugFont.loadFromFile("assets/Consolas.ttf");
+
+	path = new Path(tileMap);
 
 	debugText.setFont(debugFont);
 	debugText.setCharacterSize(14);
@@ -39,7 +48,10 @@ Game::Game() : distribution(0, 1)
 
 	cursor.setTexture(GetTexture("assets/cursor.png"));
 	cursor.setPosition(0, 0);
+	cursor.setOrigin(16, 16);
 	debugEntities = true;
+
+	
 }
 
 Game::~Game()
@@ -86,6 +98,8 @@ void Game::Update()
 		}
 	}
 
+	base->Update(enemies);
+
 	for (auto it = towers.begin(); it != towers.end(); ++it)
 	{
 		(*it)->Update(enemies);
@@ -98,6 +112,8 @@ void Game::Update()
 
 	auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
 	
+	goldText.setString("Gold: " + std::to_string(gold) + "\n" + "Health: " + std::to_string(base->health));
+
 	if (mousePosition.x >= 0 || mousePosition.y >= 0)
 	{
 		auto grid = WorldToArray(mousePosition);
@@ -189,6 +205,13 @@ void Game::ProcessEvents()
 				enemies.push_back(new Enemy(eT));
 			}
 
+			if (event.key.code == sf::Keyboard::Space)
+			{
+				auto eT = new Enemy(enemyTypes[2]);
+				eT->SetName(eT->GetName() + " --ID:-- " + std::to_string(enemies.size()));
+				enemies.push_back(eT);
+			}
+
 			if (event.key.code == sf::Keyboard::D)
 			{
 				if (enemies.size() > 0)
@@ -214,20 +237,28 @@ void Game::ProcessEvents()
 
 void Game::CreateTypes()
 {
-	Enemy enemy1(10, 25, 5, 10, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
+	Enemy enemy1(10, 50, 5, 5, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
 	enemy1.SetPosition(GridToWorld(path->nodePoints[0]));
 	enemy1.SetFont(debugFont);
 
-	Enemy enemy2(10, 25, 5, 12, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
+	Enemy enemy2(10, 100, 5, 10, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
 	enemy2.SetPosition(GridToWorld(path->nodePoints[0]));
 	enemy2.SetFont(debugFont);
 
+	Enemy enemy3(1000, 25, 50, 120, new sf::Sprite(GetTexture("assets/demon.png")), path, "Demon");
+	enemy3.SetPosition(GridToWorld(path->nodePoints[0]));
+	enemy3.SetFont(debugFont);
+
 	enemyTypes.push_back(enemy1);
 	enemyTypes.push_back(enemy2);
+	enemyTypes.push_back(enemy3);
 
 	Tower tower1(2, 1, 5.f, 100.f, 1.f, 25, new sf::Sprite(GetTexture("assets/tower1.png")), "Tower One");
 	tower1.SetFont(debugFont);
 	towerTypes.push_back(tower1);
+
+	base = new Base(100, new sf::Sprite(GetTexture("assets/base.png")), "Base");
+	base->node.SetPosition(GridToWorld(path->nodePoints.back()));
 }
 
 void Game::Initialise()
@@ -240,18 +271,18 @@ void Game::Render()
 	window.clear(sf::Color::Magenta);
 	tileMap.Render(&window);
 
+	for (auto it = towers.begin(); it != towers.end(); ++it)
+	{
+		window.draw(*(*it)->GetSprite());
+	}
 
 	for (auto it = enemies.begin(); it != enemies.end(); ++it)
 	{
 		window.draw(*(*it)->GetSprite());
 	}
 
-	for (auto it = towers.begin(); it != towers.end(); ++it)
-	{
-		window.draw(*(*it)->GetSprite());
-	}
+	window.draw(*base->node.GetSprite());
 
-	
 	if (debugEntities)
 	{
 		for (auto it = enemies.begin(); it != enemies.end(); ++it)
