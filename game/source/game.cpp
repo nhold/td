@@ -50,7 +50,10 @@ Game::Game() : distribution(0, 1)
 	cursor.setOrigin(16, 16);
 	debugEntities = true;
 
-	
+	circleShape.setRadius(1);
+	circleShape.setFillColor(sf::Color::Transparent);
+	circleShape.setOutlineColor(sf::Color::Black);
+	circleShape.setOutlineThickness(2.f);
 }
 
 Game::~Game()
@@ -68,6 +71,8 @@ Game::~Game()
 		delete tower;
 		towers.pop_back();
 	}
+
+	delete base;
 }
 
 void Game::Update()
@@ -110,7 +115,8 @@ void Game::Update()
 		"\n" + "Mouse Pressed: " + std::to_string((sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))));
 
 	auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
-	
+	auto worldGridMousePosition = WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window)));
+
 	goldText.setString("Gold: " + std::to_string(gold) + "\n" + "Health: " + std::to_string(base->health));
 
 	if (mousePosition.x >= 0 || mousePosition.y >= 0)
@@ -130,12 +136,13 @@ void Game::Update()
 				{
 					this->buildingMap.isBlocked[grid.x][grid.y] = true;
 					Tower* tower = new Tower(towerTypes[0]);
+					circleShape.setRadius(towerTypes[0].radius);
+					circleShape.setOrigin(towerTypes[0].radius, towerTypes[0].radius);
 					tower->isBuilding = true;
-					tower->node.SetPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
+					tower->node.SetPosition(worldGridMousePosition);
 					towers.push_back(tower);
 					gold -= towerTypes[0].cost;
 					goldText.setString("Gold: " + std::to_string(gold));
-					std::cout << "What is happening" << std::endl;
 				}
 				else
 				{
@@ -145,6 +152,7 @@ void Game::Update()
 		}
 
 		cursor.setPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
+		circleShape.setPosition(worldGridMousePosition);
 	}
 }
 
@@ -295,7 +303,8 @@ void Game::Render()
 		}
 	}
 
-	window.draw(cursor);
+	//window.draw(cursor);
+	//window.draw(circleShape);
 	window.draw(goldText);
 	window.draw(debugText);
 	window.display();
