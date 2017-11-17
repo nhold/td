@@ -3,6 +3,7 @@
 #include <enemy.hpp>
 #include <iostream>
 #include <vectorutility.hpp>
+#include <node.hpp>
 
 Tower::Tower()
 {
@@ -13,32 +14,27 @@ Tower::Tower()
 	fireRate = 1.f;
 	cost = 1;
 	currentRate = fireRate;
-	sprite = nullptr;
-	name = "null";
-	text.setString(name);
-	text.setColor(sf::Color::Magenta);
 	isBuilding = false;
-	std::cout << text.getString().toAnsiString() << " Default Constructor." << std::endl;
+	std::cout << node.GetText().getString().toAnsiString() << " Default Constructor." << std::endl;
 }
 
-Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* aSprite, std::string aName)
+Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name)
 {
 	damage = aDamage;
+	node.SetSprite(sprite);
+	node.SetName(name);
 	numberOfTargets = allowedTargetCount;
 	this->buildTime = buildTime;
 	this->radius = radius;
 	this->fireRate = fireRate;
 	this->cost = cost;
 	currentRate = fireRate;
-	SetSprite(aSprite);
-	name = aName;
-	text.setString(name);
-	text.setColor(sf::Color::Magenta);
+	
 	isBuilding = false;
-	std::cout << text.getString().toAnsiString() << " Data Constructor. " << std::endl;
+	//std::cout << text.getString().toAnsiString() << " Data Constructor. " << std::endl;
 }
 
-Tower::Tower(const Tower & otherTower)
+Tower::Tower(const Tower & otherTower) : node(otherTower.node)
 {
 	damage = otherTower.damage;
 	numberOfTargets = otherTower.numberOfTargets;
@@ -47,84 +43,26 @@ Tower::Tower(const Tower & otherTower)
 	this->fireRate = otherTower.fireRate;
 	this->cost = otherTower.cost;
 	currentRate = fireRate;
-	if (otherTower.sprite != nullptr)
-	{
-		sprite = new sf::Sprite(*otherTower.sprite);
-		SetPosition(otherTower.sprite->getPosition());
-	}
+
 
 	targets = otherTower.targets;
 
-	name = otherTower.name;
-	text.setString(name);
-	text.setColor(sf::Color::Magenta);
 
 
-	if (otherTower.text.getFont() != nullptr)
-	{
-		text.setFont(*otherTower.text.getFont());
-		text.setCharacterSize(12);
-	}
-
-	std::cout << text.getString().toAnsiString() << " Copy Constructor" << std::endl;
+	std::cout << node.GetText().getString().toAnsiString() << " Copy Constructor" << std::endl;
 }
 
 Tower::~Tower()
 {
-	if (sprite != nullptr)
-		delete sprite;
 }
 
-void Tower::SetSprite(sf::Sprite * aSprite)
-{
-	sprite = new sf::Sprite(*aSprite);
-	sprite->setOrigin(sprite->getTextureRect().width*0.5f, sprite->getTextureRect().height*0.5f);
-}
-
-void Tower::SetPosition(float x, float y)
-{
-	sprite->setPosition(x, y);
-	text.setPosition(x, y + 20);
-}
-
-void Tower::SetPosition(sf::Vector2f newPosition)
-{
-	sprite->setPosition(newPosition);
-	text.setPosition(newPosition + sf::Vector2f(0, 20));
-}
-
-sf::Sprite * Tower::GetSprite()
-{
-	return sprite;
-}
-
-sf::Text & Tower::GetText()
-{
-	return text;
-}
-
-std::string Tower::GetName()
-{
-	return name;
-}
-
-void Tower::SetFont(const sf::Font & font)
-{
-	text.setFont(font);
-	text.setCharacterSize(12);
-}
-
-void Tower::SetName(std::string aName)
-{
-	name = aName;
-}
 
 void Tower::Update(std::vector<Enemy*>& allEnemies)
 {
 	
 	if (isBuilding)
 	{
-		text.setString(name + " : Building...");
+		//text.setString(name + " : Building...");
 		buildTime -= Game::deltaTime;
 		if (buildTime <= 0)
 		{
@@ -136,7 +74,7 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 		}
 	}
 
-	text.setString(name + " : Built : Targets: " + std::to_string(targets.size()));
+	//text.setString(name + " : Built : Targets: " + std::to_string(targets.size()));
 	RemoveDeadTargets(allEnemies);
 
 	if (targets.size() < numberOfTargets)
@@ -162,7 +100,7 @@ void Tower::RemoveDeadTargets(std::vector<Enemy*>& allEnemies)
 		}
 		else
 		{
-			auto vec = enemy->GetSprite()->getPosition() - sprite->getPosition();
+			auto vec = enemy->node.GetSprite()->getPosition() - node.GetSprite()->getPosition();
 			if (Magnitude(vec) > radius)
 			{
 				removeVec.push_back(enemy);
@@ -182,7 +120,7 @@ void Tower::FindTarget(std::vector<Enemy*>& allEnemies)
 {
 	for (auto it = allEnemies.begin(); it != allEnemies.end(); ++it)
 	{
-		auto vec = (*it)->GetSprite()->getPosition() - sprite->getPosition();
+		auto vec = (*it)->node.GetSprite()->getPosition() - node.GetSprite()->getPosition();
 		if (Magnitude(vec) <= radius)
 		{
 			targets.push_back((*it));

@@ -21,7 +21,7 @@ void Base::Update(std::vector<Enemy*>& enemies)
 		Enemy* enemy = (*it);
 		if (enemy->currentHealth > 0)
 		{
-			if (enemy->GetSprite()->getGlobalBounds().intersects(node.GetSprite()->getGlobalBounds()))
+			if (enemy->node.GetSprite()->getGlobalBounds().intersects(node.GetSprite()->getGlobalBounds()))
 			{
 				health -= enemy->damage;
 				enemy->currentHealth = 0; // Kill it next frame.

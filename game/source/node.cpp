@@ -68,6 +68,19 @@ void Node::SetPosition(sf::Vector2f newPosition)
 	text.setPosition(newPosition + sf::Vector2f(0, 20));
 }
 
+sf::Vector2f  Node::GetPosition()
+{
+	return sprite->getPosition();
+}
+
+void Node::SetOrigin(float x, float y)
+{
+	if (sprite != nullptr)
+	{
+		sprite->setOrigin(sprite->getTextureRect().width*x, sprite->getTextureRect().height*y);
+	}
+}
+
 sf::Sprite * Node::GetSprite()
 {
 	return sprite;

@@ -5,10 +5,9 @@
 #include <SFML/Graphics/Text.hpp>
 #include <vector>
 #include <string>
-
+#include <node.hpp>
 class Path;
 
-// TODO: Extract path follow logic?
 class Enemy
 {
 public:
@@ -23,28 +22,18 @@ public:
 	int damage;
 	int worth;
 
-	void SetPosition(float x, float y);
-	void SetPosition(sf::Vector2f newPosition);
-	void SetPath(Path* path);
-	void SetSprite(sf::Sprite* aSprite);
-	void SetFont(const sf::Font& font);
-	void SetName(std::string aName);
 
-	sf::Sprite* GetSprite();
-	sf::Text& GetText();
-	std::string GetName();
+	void SetPath(Path* path);
 
 
 	void Update();
-
+	Node node;
 private:
-	sf::Text text;
 	bool AtCurrentNode();
-	std::string name;
 	void MoveToCurrentNode();
 	std::vector<sf::Vector2i> nodePoints;
 	int currentNode;
-	sf::Sprite* sprite;
+
 	
 	
 };

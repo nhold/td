@@ -131,7 +131,7 @@ void Game::Update()
 					this->buildingMap.isBlocked[grid.x][grid.y] = true;
 					Tower* tower = new Tower(towerTypes[0]);
 					tower->isBuilding = true;
-					tower->SetPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
+					tower->node.SetPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
 					towers.push_back(tower);
 					gold -= towerTypes[0].cost;
 					goldText.setString("Gold: " + std::to_string(gold));
@@ -200,14 +200,14 @@ void Game::ProcessEvents()
 			{
 				int dice_roll = distribution(generator);
 				auto eT = enemyTypes[dice_roll];
-				eT.SetName(eT.GetName() + " --ID:-- " + std::to_string(enemies.size()));
+				eT.node.SetName(eT.node.GetName() + " --ID:-- " + std::to_string(enemies.size()));
 				enemies.push_back(new Enemy(eT));
 			}
 
 			if (event.key.code == sf::Keyboard::Space)
 			{
 				auto eT = new Enemy(enemyTypes[2]);
-				eT->SetName(eT->GetName() + " --ID:-- " + std::to_string(enemies.size()));
+				eT->node.SetName(eT->node.GetName() + " --ID:-- " + std::to_string(enemies.size()));
 				enemies.push_back(eT);
 			}
 
@@ -237,23 +237,23 @@ void Game::ProcessEvents()
 void Game::CreateTypes()
 {
 	Enemy enemy1(10, 50, 5, 5, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
-	enemy1.SetPosition(GridToWorld(path->nodePoints[0]));
-	enemy1.SetFont(debugFont);
+	enemy1.node.SetPosition(GridToWorld(path->nodePoints[0]));
+	enemy1.node.SetFont(debugFont);
 
 	Enemy enemy2(10, 100, 5, 10, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
-	enemy2.SetPosition(GridToWorld(path->nodePoints[0]));
-	enemy2.SetFont(debugFont);
+	enemy2.node.SetPosition(GridToWorld(path->nodePoints[0]));
+	enemy2.node.SetFont(debugFont);
 
 	Enemy enemy3(1000, 25, 50, 120, new sf::Sprite(GetTexture("assets/demon.png")), path, "Demon");
-	enemy3.SetPosition(GridToWorld(path->nodePoints[0]));
-	enemy3.SetFont(debugFont);
+	enemy3.node.SetPosition(GridToWorld(path->nodePoints[0]));
+	enemy3.node.SetFont(debugFont);
 
 	enemyTypes.push_back(enemy1);
 	enemyTypes.push_back(enemy2);
 	enemyTypes.push_back(enemy3);
 
 	Tower tower1(2, 1, 5.f, 100.f, 1.f, 25, new sf::Sprite(GetTexture("assets/tower1.png")), "Tower One");
-	tower1.SetFont(debugFont);
+	tower1.node.SetFont(debugFont);
 	towerTypes.push_back(tower1);
 
 	base = new Base(100, new sf::Sprite(GetTexture("assets/base.png")), "Base");
@@ -272,12 +272,12 @@ void Game::Render()
 
 	for (auto it = towers.begin(); it != towers.end(); ++it)
 	{
-		window.draw(*(*it)->GetSprite());
+		window.draw(*(*it)->node.GetSprite());
 	}
 
 	for (auto it = enemies.begin(); it != enemies.end(); ++it)
 	{
-		window.draw(*(*it)->GetSprite());
+		window.draw(*(*it)->node.GetSprite());
 	}
 
 	window.draw(*base->node.GetSprite());
@@ -286,12 +286,12 @@ void Game::Render()
 	{
 		for (auto it = enemies.begin(); it != enemies.end(); ++it)
 		{
-			window.draw((*it)->GetText());
+			window.draw((*it)->node.GetText());
 		}
 
 		for (auto it = towers.begin(); it != towers.end(); ++it)
 		{
-			window.draw((*it)->GetText());
+			window.draw((*it)->node.GetText());
 		}
 	}
 

@@ -24,6 +24,8 @@ public:
 	sf::Sprite* GetSprite();
 	sf::Text& GetText();
 	std::string GetName();
+	sf::Vector2f GetPosition();
+	void SetOrigin(float x, float y);
 
 protected:
 	sf::Text text;

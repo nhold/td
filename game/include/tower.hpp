@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <node.hpp>
 #include <vector>
 
 class Enemy;
@@ -11,7 +12,7 @@ class Tower
 {
 public:
 	Tower();
-	Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* aSprite, std::string aName);
+	Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name);
 	Tower(const Tower& otherEnemy);
 	~Tower();
 
@@ -23,28 +24,15 @@ public:
 	float fireRate;
 	int cost;
 
-	void SetPosition(float x, float y);
-	void SetPosition(sf::Vector2f newPosition);
-	
-	void SetSprite(sf::Sprite* aSprite);
-	void SetFont(const sf::Font& font);
-	void SetName(std::string aName);
-
-	sf::Sprite* GetSprite();
-	sf::Text& GetText();
-	std::string GetName();
-
 
 	void Update(std::vector<Enemy*>& allEnemies);
-
+	Node node;
 private:
 	void RemoveDeadTargets(std::vector<Enemy*>& allEnemies);
 	void FindTarget(std::vector<Enemy*>& allEnemies);
 	void Shoot();
-	sf::Text text;
-	sf::Sprite* sprite;
 	std::vector<Enemy*> targets;
-	std::string name;
+
 	float currentRate;
 
 

@@ -10,66 +10,42 @@ Enemy::Enemy()
 	maximumHealth = 1;
 	movementSpeed = 1;
 	damage = 1;
-	sprite = nullptr;
 	worth = 1;
-
-	name = "null";
-	text.setString(name);
-	text.setColor(sf::Color::Magenta);
 	currentNode = 0;
-	std::cout << text.getString().toAnsiString() << " Default Constructor." << std::endl;
+	std::cout << node.GetText().getString().toAnsiString() << " Default Constructor." << std::endl;
 }
 
-Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, int worth, sf::Sprite * aSprite, Path * aPath, std::string aName)
+Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, int worth, sf::Sprite * sprite, Path * aPath, std::string name)
 {
+	node.SetSprite(sprite);
+	node.SetName(name);
+	node.SetOrigin(0.5f, 0.9f);
 	currentHealth = aHealth;
 	maximumHealth = currentHealth;
 	movementSpeed = aMovementSpeed;
-
 	damage = aDamage;
-	SetSprite(aSprite);
 	SetPath(aPath);
-	name = aName;
 	this->worth = worth;
-	text.setString(name);
-	text.setColor(sf::Color::Magenta);
 	currentNode = 0;
-	std::cout << text.getString().toAnsiString() << " Data Constructor. " << std::endl;
+	std::cout << node.GetText().getString().toAnsiString() << " Data Constructor. " << std::endl;
 }
 
-Enemy::Enemy(const Enemy & otherEnemy)
+Enemy::Enemy(const Enemy & otherEnemy) : node(otherEnemy.node)
 {
 	currentHealth = otherEnemy.currentHealth;
 	maximumHealth = otherEnemy.maximumHealth;
 	movementSpeed = otherEnemy.movementSpeed;
 	damage = otherEnemy.damage;
 	worth = otherEnemy.worth;
-	if (otherEnemy.sprite != nullptr)
-	{
-		sprite = new sf::Sprite(*otherEnemy.sprite);
-		SetPosition(otherEnemy.sprite->getPosition());
-	}
-
 	nodePoints = otherEnemy.nodePoints;
 	currentNode = otherEnemy.currentNode;
-	name = otherEnemy.name;
-	text.setString(name);
-	text.setColor(sf::Color::Magenta);
-	
+	node.SetOrigin(0.5f, 0.9f);
 
-	if (otherEnemy.text.getFont() != nullptr)
-	{
-		text.setFont(*otherEnemy.text.getFont());
-		text.setCharacterSize(12);
-	}
-
-	std::cout << text.getString().toAnsiString() << " Copy Constructor" << std::endl;
+	std::cout << node.GetText().getString().toAnsiString() << " Copy Constructor" << std::endl;
 }
 
 Enemy::~Enemy()
 {
-	if(sprite != nullptr)
-		delete sprite;
 }
 
 void Enemy::SetPath(Path* path)
@@ -79,53 +55,9 @@ void Enemy::SetPath(Path* path)
 
 	nodePoints = path->nodePoints;
 	currentNode = 0;
-	std::cout << text.getString().toAnsiString() <<  " Set Path " << std::endl;
+	std::cout << node.GetText().getString().toAnsiString() <<  " Set Path " << std::endl;
 }
 
-void Enemy::SetSprite(sf::Sprite * aSprite)
-{
-	sprite = new sf::Sprite(*aSprite);
-	sprite->setOrigin(sprite->getTextureRect().width*0.5f, sprite->getTextureRect().height*0.9f);
-}
-
-void Enemy::SetPosition(float x, float y)
-{
-	sprite->setPosition(x, y);
-	text.setPosition(x, y + 20);
-}
-
-void Enemy::SetPosition(sf::Vector2f newPosition)
-{
-	sprite->setPosition(newPosition);
-	text.setPosition(newPosition + sf::Vector2f(0, 20));
-}
-
-sf::Sprite * Enemy::GetSprite()
-{
-	return sprite;
-}
-
-sf::Text & Enemy::GetText()
-{
-	return text;
-}
-
-std::string Enemy::GetName()
-{
-	return name;
-}
-
-void Enemy::SetFont(const sf::Font & font)
-{
-	text.setFont(font);
-	text.setCharacterSize(12);
-}
-
-void Enemy::SetName(std::string aName)
-{
-	name = aName;
-}
-	
 void Enemy::Update()
 {
 	if (nodePoints.size() == 0)
@@ -133,7 +65,7 @@ void Enemy::Update()
 
 	if (currentNode < nodePoints.size())
 	{
-		text.setString(name + " : Health: " + std::to_string(currentHealth) +
+		node.GetText().setString(node.GetName() + " : Health: " + std::to_string(currentHealth) +
 			" - Nodes: " + std::to_string(currentNode) + " \ " + std::to_string(nodePoints.size()));
 		MoveToCurrentNode();
 
@@ -143,8 +75,8 @@ void Enemy::Update()
 	else 
 	{
 		currentNode = 0;
-		SetPosition(Game::GridToWorld(nodePoints[currentNode]));
-		std::cout << text.getString().toAnsiString() << std::endl;
+		node.SetPosition(Game::GridToWorld(nodePoints[currentNode]));
+		std::cout << node.GetText().getString().toAnsiString() << std::endl;
 	}
 }
 
@@ -152,7 +84,7 @@ bool Enemy::AtCurrentNode()
 {
 	sf::Vector2f worldPosition;
 	worldPosition = Game::GridToWorld(nodePoints[currentNode]);
-	sf::Vector2f direction = worldPosition - sprite->getPosition();
+	sf::Vector2f direction = worldPosition - node.GetSprite()->getPosition();
 
 	if (Magnitude(direction) <= movementSpeed * Game::deltaTime)
 	{
@@ -168,9 +100,9 @@ void Enemy::MoveToCurrentNode()
 
 	auto currentNodeWorldPosition = Game::GridToWorld(nodePoints[currentNode]);
 
-	sf::Vector2f direction = currentNodeWorldPosition - sprite->getPosition();
+	sf::Vector2f direction = currentNodeWorldPosition - node.GetPosition();
 	direction = Normalise(direction);
 	direction = Scale(direction, movementSpeed * Game::deltaTime);
 
-	SetPosition(sprite->getPosition() + direction);
+	node.SetPosition(node.GetPosition() + direction);
 }
