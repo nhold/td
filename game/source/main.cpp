@@ -1,8 +1,8 @@
-#include <game.hpp>
+#include <td.hpp>
 
 int main()
 {
-	Game game;
+	Td game;
 
 	game.Run();
 

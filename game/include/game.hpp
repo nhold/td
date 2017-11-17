@@ -18,49 +18,37 @@ class Game
 {
 public:
 	Game();
+	Game(int width, int height, std::string title);
+
 	~Game();
 
 	void Run();
-
+	sf::Texture& GetTexture(std::string fileName);
+	sf::Sprite* CreateTempSprite(const sf::Color &color, int length = 32, int height = 32) const;
 	static float Game::deltaTime;
 	static sf::Vector2f GridToWorld(sf::Vector2i gridPoint);
 	static sf::Vector2f WorldToGrid(sf::Vector2f worldPosition);
 	static sf::Vector2i WorldToArray(sf::Vector2f worldPosition);
 
-private:
-	sf::RenderWindow window;
-	sf::Sprite* enemySprite;
-	int currentNode = 0;
-	float frameWait = 0.2f;
-	void ProcessEvents();
-	void CreateTypes();
-	void Initialise();
-	void Update();
-	void Render();
-	sf::Clock clock;
-	TileMap tileMap;
-	BuildingMap buildingMap;
-	Path* path;
-	sf::Sprite* CreateTempSprite(const sf::Color &color, int length = 32, int height = 32) const;
+protected:
 	sf::Text debugText;
-	sf::Text goldText;
 	sf::Font debugFont;
-	sf::CircleShape circleShape;
-	std::vector<Enemy*> enemies;
-	std::vector<Enemy> enemyTypes;
+	sf::RenderWindow window;
 
-	std::vector<Tower*> towers;
-	std::vector<Tower> towerTypes;
+	virtual void Initialise();
+	virtual void Update();
+	virtual void Render();
+	virtual void ProcessInput(sf::Event currentEvent);
 
-	float spawnTimer = 2.5f;
-	Base* base;
-	int gold;
-	sf::Texture& GetTexture(std::string fileName);
-	std::default_random_engine generator;
-	std::uniform_int_distribution<int> distribution;
+
+private:
+	void ProcessEvents();
+	
+	sf::Clock clock;
+
 	std::map<std::string, sf::Texture> textureCache;
-	sf::Sprite cursor;
-	bool debugEntities;
+	
+	bool showDebugText;
 };
 
 #endif
