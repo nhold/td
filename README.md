@@ -13,7 +13,7 @@
 * Refactor the path follow logic
 * Create actual A* from path logic
 * Optimise tilemap
-* Everything should use node
+* ~~Everything should use node~~
 
 ### Code Standards
 

@@ -45,7 +45,7 @@ private:
 	sf::Text debugText;
 	sf::Text goldText;
 	sf::Font debugFont;
-
+	sf::CircleShape circleShape;
 	std::vector<Enemy*> enemies;
 	std::vector<Enemy> enemyTypes;
 

@@ -114,6 +114,10 @@ void Tower::RemoveDeadTargets(std::vector<Enemy*>& allEnemies)
 		if (it != targets.end())
 			targets.erase(it);
 	}
+
+	if (targets.size() == 0)
+		currentRate = fireRate;
+
 }
 
 void Tower::FindTarget(std::vector<Enemy*>& allEnemies)
