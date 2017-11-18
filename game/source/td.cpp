@@ -23,36 +23,19 @@ Td::~Td()
 		delete tower;
 		towers.pop_back();
 	}
-
-	delete base;
 }
 
 void Td::Initialise()
 {
-	gold = 100;
-	goldText.setString("Gold: " + std::to_string(gold));
-
-	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
-	tileMap.tileTypes[1] = CreateTempSprite(sf::Color(125, 68, 29));
-	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
-
-	tileMap.LoadFromFile("assets/level1.txt");
-	tileMap.SaveToFile("assets/tilemapsave.txt");
-	
-
-	path = new Path(tileMap);
-
-	debugText.setFont(debugFont);
-	debugText.setCharacterSize(14);
-	debugText.setColor(sf::Color::Magenta);
-
 	goldText.setFont(debugFont);
 	goldText.setCharacterSize(14);
 	goldText.setColor(sf::Color::Blue);
 
+	currentLevel.Load("assets/level1_tilemap.txt", assetDatabase);
+
 	CreateTypes();
 
-	cursor.setTexture(GetTexture("assets/cursor.png"));
+	cursor.setTexture(assetDatabase.GetTexture("assets/cursor.png"));
 	cursor.setPosition(0, 0);
 	cursor.setOrigin(16, 16);
 
@@ -65,49 +48,16 @@ void Td::Initialise()
 void Td::Update()
 {
 	Game::Update();
-
-	// Best to extract this to enemy system?
-	std::vector<Enemy*> deadVector;
-
-	for (auto it = enemies.begin(); it != enemies.end(); ++it)
-	{
-		(*it)->Update();
-		if ((*it)->currentHealth <= 0)
-		{
-			deadVector.push_back((*it));
-		}
-	}
-
-	for (auto it = deadVector.begin(); it != deadVector.end(); ++it)
-	{
-		auto killIt = std::find(enemies.begin(), enemies.end(), (*it));
-
-		if (killIt != enemies.end())
-		{
-			gold += (*killIt)->worth;
-			goldText.setString("Gold: " + std::to_string(gold));
-			enemies.erase(killIt);
-			delete (*it);
-		}
-	}
-
-	base->Update(enemies);
-
-	for (auto it = towers.begin(); it != towers.end(); ++it)
-	{
-		(*it)->Update(enemies);
-	}
+	currentLevel.Update(enemies, towers);
 
 	auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
-	auto worldGridMousePosition = WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window)));
-
-	goldText.setString("Gold: " + std::to_string(gold) + "\n" + "Health: " + std::to_string(base->health));
+	auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window)));
 
 	if (mousePosition.x >= 0 || mousePosition.y >= 0)
 	{
-		auto grid = WorldToArray(mousePosition);
+		auto grid = Game::WorldToArray(mousePosition);
 
-		if (this->tileMap.tiles[grid.x][grid.y] == 1 || this->buildingMap.isBlocked[grid.x][grid.y])
+		if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 || currentLevel.buildingMap.isBlocked[grid.x][grid.y])
 		{
 			cursor.setColor(sf::Color::Red);
 		}
@@ -116,17 +66,17 @@ void Td::Update()
 			cursor.setColor(sf::Color::Black);
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			{
-				if (towerTypes[0].cost <= gold)
+				if (towerTypes[0].cost <= currentLevel.currentGold)
 				{
-					this->buildingMap.isBlocked[grid.x][grid.y] = true;
+					currentLevel.buildingMap.isBlocked[grid.x][grid.y] = true;
 					Tower* tower = new Tower(towerTypes[0]);
 					towerRadius.setRadius(towerTypes[0].radius);
 					towerRadius.setOrigin(towerTypes[0].radius, towerTypes[0].radius);
 					tower->isBuilding = true;
 					tower->node.SetPosition(worldGridMousePosition);
 					towers.push_back(tower);
-					gold -= towerTypes[0].cost;
-					goldText.setString("Gold: " + std::to_string(gold));
+					currentLevel.currentGold -= towerTypes[0].cost;
+					goldText.setString("Gold: " + std::to_string(currentLevel.currentGold));
 				}
 				else
 				{
@@ -138,15 +88,18 @@ void Td::Update()
 		cursor.setPosition(WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window))));
 		towerRadius.setPosition(worldGridMousePosition);
 	}
+
+	goldText.setString("Gold: " + std::to_string(currentLevel.currentGold) + "\n" + "Health: " + std::to_string(currentLevel.base->health));
 }
 
 void Td::Render()
 {
-	tileMap.Render(&window);
+	currentLevel.Render(window);
 
 	for (auto it = towers.begin(); it != towers.end(); ++it)
 	{
 		window.draw(*(*it)->node.GetSprite());
+		window.draw((*it)->GetDebugLines());
 	}
 
 	for (auto it = enemies.begin(); it != enemies.end(); ++it)
@@ -154,7 +107,6 @@ void Td::Render()
 		window.draw(*(*it)->node.GetSprite());
 	}
 
-	window.draw(*base->node.GetSprite());
 	window.draw(cursor);
 	window.draw(towerRadius);
 	window.draw(goldText);
@@ -203,26 +155,23 @@ void Td::ProcessInput(sf::Event currentEvent)
 
 void Td::CreateTypes()
 {
-	Enemy enemy1(10, 50, 5, 5, new sf::Sprite(GetTexture("assets/enemy1.png")), path, "Simpleton");
-	enemy1.node.SetPosition(GridToWorld(path->nodePoints[0]));
+	Enemy enemy1(10, 50, 5, 5, new sf::Sprite(assetDatabase.GetTexture("assets/enemy1.png")), currentLevel.path, "Simpleton");
+	enemy1.node.SetPosition(GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy1.node.SetFont(debugFont);
 
-	Enemy enemy2(10, 100, 5, 10, new sf::Sprite(GetTexture("assets/enemy2.png")), path, "Blarg");
-	enemy2.node.SetPosition(GridToWorld(path->nodePoints[0]));
+	Enemy enemy2(10, 100, 5, 10, new sf::Sprite(assetDatabase.GetTexture("assets/enemy2.png")), currentLevel.path, "Blarg");
+	enemy2.node.SetPosition(GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy2.node.SetFont(debugFont);
 
-	Enemy enemy3(1000, 25, 50, 120, new sf::Sprite(GetTexture("assets/demon.png")), path, "Demon");
-	enemy3.node.SetPosition(GridToWorld(path->nodePoints[0]));
+	Enemy enemy3(1000, 25, 50, 120, new sf::Sprite(assetDatabase.GetTexture("assets/demon.png")), currentLevel.path, "Demon");
+	enemy3.node.SetPosition(GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy3.node.SetFont(debugFont);
 
 	enemyTypes.push_back(enemy1);
 	enemyTypes.push_back(enemy2);
 	enemyTypes.push_back(enemy3);
 
-	Tower tower1(2, 1, 5.f, 100.f, 1.f, 25, new sf::Sprite(GetTexture("assets/tower1.png")), "Tower One");
+	Tower tower1(2, 1, 5.f, 100.f, 1.f, 25, new sf::Sprite(assetDatabase.GetTexture("assets/tower1.png")), "Tower One");
 	tower1.node.SetFont(debugFont);
 	towerTypes.push_back(tower1);
-
-	base = new Base(100, new sf::Sprite(GetTexture("assets/base.png")), "Base");
-	base->node.SetPosition(GridToWorld(path->nodePoints.back()));
 }

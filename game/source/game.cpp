@@ -7,20 +7,24 @@
 #include <vectorutility.hpp>
 #include <base.hpp>
 
-
-
 float Game::deltaTime = 0.f;
 
 Game::Game()
 {
 	window.create(sf::VideoMode(640, 640), "Default Window Title");
 	debugFont.loadFromFile("assets/Consolas.ttf");
+	debugText.setFont(debugFont);
+	debugText.setCharacterSize(14);
+	debugText.setColor(sf::Color::Magenta);
 }
 
 Game::Game(int width, int height, std::string title)
 {
 	window.create(sf::VideoMode(width, height), title);
 	debugFont.loadFromFile("assets/Consolas.ttf");
+	debugText.setFont(debugFont);
+	debugText.setCharacterSize(14);
+	debugText.setColor(sf::Color::Magenta);
 }
 
 Game::~Game()
@@ -87,35 +91,6 @@ void Game::Render()
 
 void Game::ProcessInput(sf::Event currentEvent)
 {
-}
-
-// TODO: Extract to an asset helper class.
-sf::Sprite* Game::CreateTempSprite(const sf::Color &color, int length, int height) const
-{
-	sf::Texture texture;
-	texture.create(length, height);
-	sf::Image image;
-	image.create(length, height, color);
-	texture.update(image, 0, 0);
-
-	auto sprite = new sf::Sprite(texture);
-	sprite->setColor(color);
-
-	return sprite;
-}
-
-sf::Texture& Game::GetTexture(std::string fileName)
-{
-	auto it = textureCache.find(fileName);
-
-	if (it != textureCache.end())
-		return (*it).second;
-
-	sf::Texture tex;
-	tex.loadFromFile(fileName);
-	textureCache[fileName] = tex;
-
-	return textureCache[fileName];
 }
 
 sf::Vector2f Game::GridToWorld(sf::Vector2i gridPoint)

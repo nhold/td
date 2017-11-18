@@ -88,6 +88,23 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 	}
 }
 
+sf::VertexArray Tower::GetDebugLines()
+{
+	sf::VertexArray vertexArray(sf::Lines, 0);
+	for each (auto enemy in targets)
+	{
+		sf::Vertex vert;
+		vert.color = sf::Color::Green;
+		vert.position = node.GetPosition();
+		vertexArray.append(vert);
+		sf::Vertex vert2;
+		vert2.color = sf::Color::Red;
+		vert2.position = enemy->node.GetPosition();
+		vertexArray.append(vert2);
+	}
+	return vertexArray;
+}
+
 void Tower::RemoveDeadTargets(std::vector<Enemy*>& allEnemies)
 {
 	std::vector<Enemy*> removeVec;

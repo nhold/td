@@ -25,6 +25,7 @@ public:
 	int cost;
 
 	void Update(std::vector<Enemy*>& allEnemies);
+	sf::VertexArray GetDebugLines();
 	Node node;
 private:
 	void RemoveDeadTargets(std::vector<Enemy*>& allEnemies);

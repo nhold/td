@@ -8,6 +8,7 @@
 #include <tower.hpp>
 #include <map>
 #include <random>
+#include <assetdatabase.hpp>
 
 class Path;
 class Enemy;
@@ -23,8 +24,7 @@ public:
 	~Game();
 
 	void Run();
-	sf::Texture& GetTexture(std::string fileName);
-	sf::Sprite* CreateTempSprite(const sf::Color &color, int length = 32, int height = 32) const;
+	
 	static float Game::deltaTime;
 	static sf::Vector2f GridToWorld(sf::Vector2i gridPoint);
 	static sf::Vector2f WorldToGrid(sf::Vector2f worldPosition);
@@ -34,7 +34,7 @@ protected:
 	sf::Text debugText;
 	sf::Font debugFont;
 	sf::RenderWindow window;
-
+	AssetDatabase assetDatabase;
 	virtual void Initialise();
 	virtual void Update();
 	virtual void Render();
@@ -46,8 +46,6 @@ private:
 	
 	sf::Clock clock;
 
-	std::map<std::string, sf::Texture> textureCache;
-	
 	bool showDebugText;
 };
 

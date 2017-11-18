@@ -1,4 +1,4 @@
-#ifndef BULIDINGMAP_HPP
+#ifndef BUILDINGMAP_HPP
 #define BUILDINGMAP_HPP
 
 #include <tilemap.hpp>
