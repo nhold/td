@@ -39,7 +39,8 @@ void Td::Initialise()
 	cursor.setPosition(0, 0);
 	cursor.setOrigin(16, 16);
 
-	towerRadius.setRadius(1);
+	towerRadius.setRadius(towerTypes[0].radius);
+	towerRadius.setOrigin(towerTypes[0].radius, towerTypes[0].radius);
 	towerRadius.setFillColor(sf::Color::Transparent);
 	towerRadius.setOutlineColor(sf::Color::Black);
 	towerRadius.setOutlineThickness(2.f);
