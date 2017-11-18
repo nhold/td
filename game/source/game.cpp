@@ -15,7 +15,8 @@ Game::Game()
 	debugFont.loadFromFile("assets/Consolas.ttf");
 	debugText.setFont(debugFont);
 	debugText.setCharacterSize(14);
-	debugText.setColor(sf::Color::Magenta);
+	debugText.setFillColor(sf::Color::Magenta);
+	showDebugText = true;
 }
 
 Game::Game(int width, int height, std::string title)
@@ -24,7 +25,8 @@ Game::Game(int width, int height, std::string title)
 	debugFont.loadFromFile("assets/Consolas.ttf");
 	debugText.setFont(debugFont);
 	debugText.setCharacterSize(14);
-	debugText.setColor(sf::Color::Magenta);
+	debugText.setFillColor(sf::Color::Magenta);
+	showDebugText = true;
 }
 
 Game::~Game()
@@ -96,8 +98,8 @@ void Game::ProcessInput(sf::Event currentEvent)
 sf::Vector2f Game::GridToWorld(sf::Vector2i gridPoint)
 {
 	sf::Vector2f worldPoint;
-	worldPoint.x = gridPoint.x * 32 + 16;
-	worldPoint.y = gridPoint.y * 32 + 16;
+	worldPoint.x = static_cast<float>(gridPoint.x * 32 + 16);
+	worldPoint.y = static_cast<float>(gridPoint.y * 32 + 16);
 	return worldPoint;
 }
 

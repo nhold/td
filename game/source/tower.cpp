@@ -62,7 +62,7 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 	
 	if (isBuilding)
 	{
-		node.GetText().setString(node.GetName() + " : Building...");
+		//node.GetText().setString(node.GetName() + " : Building...");
 		buildTime -= Game::deltaTime;
 		if (buildTime <= 0)
 		{
@@ -74,7 +74,7 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 		}
 	}
 
-	node.GetText().setString(node.GetName() + " : Built : Targets: " + std::to_string(targets.size()));
+	//node.GetText().setString(node.GetName() + " : Built : Targets: " + std::to_string(targets.size()));
 	RemoveDeadTargets(allEnemies);
 
 	if (targets.size() < numberOfTargets)

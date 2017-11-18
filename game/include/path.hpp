@@ -8,7 +8,7 @@
 class Path 
 {
 public:
-	Path(TileMap& const tileMap);
+	Path(TileMap& tileMap);
 	std::vector<sf::Vector2i> nodePoints;
 
 	bool HasPoint(sf::Vector2i point)

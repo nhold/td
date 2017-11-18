@@ -15,7 +15,7 @@ currentNode++;
 }*/
 
 
-Path::Path(TileMap & const tileMap)
+Path::Path(TileMap& tileMap)
 {
 	bool foundFirst = false;
 	for (int y = 0; y < TileMap::tileMapSize; y++)

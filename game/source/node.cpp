@@ -8,7 +8,7 @@ Node::Node()
 	sprite = nullptr;
 	name = "null";
 	text.setString(name);
-	text.setColor(sf::Color::Magenta);
+	text.setFillColor(sf::Color::Magenta);
 	std::cout << text.getString().toAnsiString() << " <- Node Default Constructor." << std::endl;
 }
 
@@ -17,7 +17,7 @@ Node::Node(sf::Sprite * aSprite, std::string aName)
 	SetSprite(aSprite);
 	name = aName;
 	text.setString(name);
-	text.setColor(sf::Color::Magenta);
+	text.setFillColor(sf::Color::Magenta);
 
 	std::cout << text.getString().toAnsiString() << " <- Node Data Constructor. " << std::endl;
 }
@@ -32,7 +32,7 @@ Node::Node(const Node & otherNode)
 
 	name = otherNode.name;
 	text.setString(name);
-	text.setColor(sf::Color::Magenta);
+	text.setFillColor(sf::Color::Magenta);
 
 
 	if (otherNode.text.getFont() != nullptr)

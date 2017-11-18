@@ -29,7 +29,7 @@ void Td::Initialise()
 {
 	goldText.setFont(debugFont);
 	goldText.setCharacterSize(14);
-	goldText.setColor(sf::Color::Blue);
+	goldText.setFillColor(sf::Color::Blue);
 
 	currentLevel.Load("assets/level1_tilemap.txt", assetDatabase);
 
@@ -160,7 +160,7 @@ void Td::CreateTypes()
 	enemy1.node.SetPosition(GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy1.node.SetFont(debugFont);
 
-	Enemy enemy2(10, 100, 5, 10, new sf::Sprite(assetDatabase.GetTexture("assets/enemy2.png")), currentLevel.path, "Blarg");
+	Enemy enemy2(5, 100, 5, 10, new sf::Sprite(assetDatabase.GetTexture("assets/enemy2.png")), currentLevel.path, "Blarg");
 	enemy2.node.SetPosition(GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy2.node.SetFont(debugFont);
 
@@ -172,7 +172,7 @@ void Td::CreateTypes()
 	enemyTypes.push_back(enemy2);
 	enemyTypes.push_back(enemy3);
 
-	Tower tower1(2, 1, 5.f, 100.f, 1.f, 25, new sf::Sprite(assetDatabase.GetTexture("assets/tower1.png")), "Tower One");
+	Tower tower1(2, 3, 5.f, 100.f, 1.f, 25, new sf::Sprite(assetDatabase.GetTexture("assets/tower1.png")), "Tower One");
 	tower1.node.SetFont(debugFont);
 	towerTypes.push_back(tower1);
 }

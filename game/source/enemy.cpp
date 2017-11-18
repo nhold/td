@@ -65,8 +65,8 @@ void Enemy::Update()
 
 	if (currentNode < nodePoints.size())
 	{
-		node.GetText().setString(node.GetName() + " : Health: " + std::to_string(currentHealth) +
-			" - Nodes: " + std::to_string(currentNode) + " \ " + std::to_string(nodePoints.size()));
+		//node.GetText().setString(node.GetName() + " : Health: " + std::to_string(currentHealth) +
+		//	" - Nodes: " + std::to_string(currentNode) + " / " + std::to_string(nodePoints.size()));
 		MoveToCurrentNode();
 
 		if (AtCurrentNode())

@@ -28,8 +28,8 @@ void Level::Load(std::string tileMapFileName, AssetDatabase& assetDatabase)
 	base = new Base(100, new sf::Sprite(assetDatabase.GetTexture("assets/base.png")), "Base");
 	base->node.SetPosition(Game::GridToWorld(path->nodePoints.back()));
 
-	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
-	tileMap.tileTypes[1] = CreateTempSprite(sf::Color(125, 68, 29));
+	tileMap.tileTypes[0] = new sf::Sprite(assetDatabase.GetTexture("assets/grass.png"));
+	tileMap.tileTypes[1] = new sf::Sprite(assetDatabase.GetTexture("assets/dirt.png"));
 	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
 }
 
