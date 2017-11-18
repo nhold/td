@@ -24,7 +24,6 @@ public:
 	float fireRate;
 	int cost;
 
-
 	void Update(std::vector<Enemy*>& allEnemies);
 	Node node;
 private:
@@ -34,8 +33,6 @@ private:
 	std::vector<Enemy*> targets;
 
 	float currentRate;
-
-
 };
 
 #endif // !TOWER_HPP

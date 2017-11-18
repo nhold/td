@@ -5,36 +5,7 @@
 
 Td::Td() : Game(640, 640, "TD"), distribution(0, 1)
 {
-	gold = 100;
 
-	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
-	tileMap.tileTypes[1] = CreateTempSprite(sf::Color(125, 68, 29));
-	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
-
-	tileMap.LoadFromFile("assets/level1.txt");
-	tileMap.SaveToFile("assets/tilemapsave.txt");
-	debugFont.loadFromFile("assets/Consolas.ttf");
-
-	path = new Path(tileMap);
-
-	debugText.setFont(debugFont);
-	debugText.setCharacterSize(14);
-	debugText.setColor(sf::Color::Magenta);
-
-	goldText.setFont(debugFont);
-	goldText.setCharacterSize(14);
-	goldText.setColor(sf::Color::Blue);
-
-	CreateTypes();
-
-	cursor.setTexture(GetTexture("assets/cursor.png"));
-	cursor.setPosition(0, 0);
-	cursor.setOrigin(16, 16);
-
-	towerRadius.setRadius(1);
-	towerRadius.setFillColor(sf::Color::Transparent);
-	towerRadius.setOutlineColor(sf::Color::Black);
-	towerRadius.setOutlineThickness(2.f);
 }
 
 Td::~Td()
@@ -58,8 +29,37 @@ Td::~Td()
 
 void Td::Initialise()
 {
-	gold = 100; // TODO: Load from level file.
+	gold = 100;
 	goldText.setString("Gold: " + std::to_string(gold));
+
+	tileMap.tileTypes[0] = CreateTempSprite(sf::Color::Green);
+	tileMap.tileTypes[1] = CreateTempSprite(sf::Color(125, 68, 29));
+	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
+
+	tileMap.LoadFromFile("assets/level1.txt");
+	tileMap.SaveToFile("assets/tilemapsave.txt");
+	
+
+	path = new Path(tileMap);
+
+	debugText.setFont(debugFont);
+	debugText.setCharacterSize(14);
+	debugText.setColor(sf::Color::Magenta);
+
+	goldText.setFont(debugFont);
+	goldText.setCharacterSize(14);
+	goldText.setColor(sf::Color::Blue);
+
+	CreateTypes();
+
+	cursor.setTexture(GetTexture("assets/cursor.png"));
+	cursor.setPosition(0, 0);
+	cursor.setOrigin(16, 16);
+
+	towerRadius.setRadius(1);
+	towerRadius.setFillColor(sf::Color::Transparent);
+	towerRadius.setOutlineColor(sf::Color::Black);
+	towerRadius.setOutlineThickness(2.f);
 }
 
 void Td::Update()

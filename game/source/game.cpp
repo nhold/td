@@ -13,17 +13,18 @@ float Game::deltaTime = 0.f;
 
 Game::Game()
 {
-	window.create(sf::VideoMode(640, 640), "TD");
+	window.create(sf::VideoMode(640, 640), "Default Window Title");
+	debugFont.loadFromFile("assets/Consolas.ttf");
 }
 
 Game::Game(int width, int height, std::string title)
 {
 	window.create(sf::VideoMode(width, height), title);
+	debugFont.loadFromFile("assets/Consolas.ttf");
 }
 
 Game::~Game()
 {
-
 }
 
 void Game::Update()
@@ -46,10 +47,13 @@ void Game::Run()
 		ProcessEvents();
 
 		Update();
+
 		window.clear(sf::Color::Magenta);
 		Render();
+
 		if(showDebugText)
 			window.draw(debugText);
+
 		window.display();
 
 		deltaTime = clock.restart().asSeconds();

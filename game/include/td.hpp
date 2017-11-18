@@ -33,7 +33,6 @@ private:
 	sf::Text goldText;
 	sf::Sprite cursor;
 
-
 };
 
 #endif

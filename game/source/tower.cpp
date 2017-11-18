@@ -31,7 +31,7 @@ Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius,
 	currentRate = fireRate;
 	
 	isBuilding = false;
-	//std::cout << text.getString().toAnsiString() << " Data Constructor. " << std::endl;
+	std::cout << node.GetText().getString().toAnsiString() << " Data Constructor. " << std::endl;
 }
 
 Tower::Tower(const Tower & otherTower) : node(otherTower.node)
@@ -62,7 +62,7 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 	
 	if (isBuilding)
 	{
-		//text.setString(name + " : Building...");
+		node.GetText().setString(node.GetName() + " : Building...");
 		buildTime -= Game::deltaTime;
 		if (buildTime <= 0)
 		{
@@ -74,7 +74,7 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 		}
 	}
 
-	//text.setString(name + " : Built : Targets: " + std::to_string(targets.size()));
+	node.GetText().setString(node.GetName() + " : Built : Targets: " + std::to_string(targets.size()));
 	RemoveDeadTargets(allEnemies);
 
 	if (targets.size() < numberOfTargets)
