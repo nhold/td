@@ -3,19 +3,13 @@
 #include <enemy.hpp>
 #include <base.hpp>
 
-Td::Td() : Game(640, 640, "TD"), distribution(0, 1), currentLevel(enemySpawner)
+Td::Td() : Game(640, 640, "TD"), distribution(0, 1), currentLevel(enemySpawner, towerSpawner, projectileSpawner)
 {
 
 }
 
 Td::~Td()
 {
-	while (towers.size() > 0)
-	{
-		auto tower = towers.back();
-		delete tower;
-		towers.pop_back();
-	}
 }
 
 void Td::Initialise()
@@ -32,8 +26,8 @@ void Td::Initialise()
 	cursor.setPosition(0, 0);
 	cursor.setOrigin(16, 16);
 
-	towerRadius.setRadius(towerTypes[0].radius);
-	towerRadius.setOrigin(towerTypes[0].radius, towerTypes[0].radius);
+	towerRadius.setRadius(towerSpawner.types[0].radius);
+	towerRadius.setOrigin(towerSpawner.types[0].radius, towerSpawner.types[0].radius);
 	towerRadius.setFillColor(sf::Color::Transparent);
 	towerRadius.setOutlineColor(sf::Color::Black);
 	towerRadius.setOutlineThickness(2.f);
@@ -42,7 +36,7 @@ void Td::Initialise()
 void Td::Update()
 {
 	Game::Update();
-	currentLevel.Update(enemySpawner.enemyInstances, towers);
+	currentLevel.Update();
 
 	auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
 	auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window)));
@@ -60,17 +54,14 @@ void Td::Update()
 			cursor.setColor(sf::Color::Black);
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			{
-				if (towerTypes[0].cost <= currentLevel.currentGold)
+				if (towerSpawner.types[0].cost <= currentLevel.currentGold)
 				{
 					currentLevel.buildingMap.isBlocked[grid.x][grid.y] = true;
-					Tower* tower = new Tower(towerTypes[0]);
-					towerRadius.setRadius(towerTypes[0].radius);
-					towerRadius.setOrigin(towerTypes[0].radius, towerTypes[0].radius);
+					Tower* tower = towerSpawner.Spawn(0);
 					tower->isBuilding = true;
 					tower->node.SetPosition(worldGridMousePosition);
-					towers.push_back(tower);
-					currentLevel.currentGold -= towerTypes[0].cost;
-					goldText.setString("Gold: " + std::to_string(currentLevel.currentGold));
+
+					currentLevel.currentGold -= towerSpawner.types[0].cost;
 				}
 				else
 				{
@@ -90,13 +81,18 @@ void Td::Render()
 {
 	currentLevel.Render(window);
 
-	for (auto it = towers.begin(); it != towers.end(); ++it)
+	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
 	{
 		window.draw(*(*it)->node.GetSprite());
-		window.draw((*it)->GetDebugLines());
+		//window.draw((*it)->GetDebugLines());
 	}
 
-	for (auto it = enemySpawner.enemyInstances.begin(); it != enemySpawner.enemyInstances.end(); ++it)
+	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
+	{
+		window.draw(*(*it)->node.GetSprite());
+	}
+
+	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
 	{
 		window.draw(*(*it)->node.GetSprite());
 	}
@@ -146,7 +142,11 @@ void Td::CreateTypes()
 	enemySpawner.AddType(enemy2);
 	enemySpawner.AddType(enemy3);
 
-	Tower tower1(2, 3, 5.f, 100.f, 1.f, 25, new sf::Sprite(assetDatabase.GetTexture("assets/tower1.png")), "Tower One");
+	Tower tower1(0, 1, 5.f, 100.f, 1.f, 25, new sf::Sprite(assetDatabase.GetTexture("assets/tower1.png")), "Tower One", projectileSpawner);
 	tower1.node.SetFont(debugFont);
-	towerTypes.push_back(tower1);
+	towerSpawner.AddType(tower1);
+
+	Projectile projectile(250, 5, new sf::Sprite(assetDatabase.GetTexture("assets/projectile1.png")), nullptr, "Test");
+	projectile.node.SetFont(debugFont);
+	projectileSpawner.AddType(projectile);
 }

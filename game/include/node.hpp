@@ -17,6 +17,7 @@ public:
 
 	void SetPosition(float x, float y);
 	void SetPosition(sf::Vector2f newPosition);
+	void SetDirection(sf::Vector2f direction);
 	void SetSprite(sf::Sprite* aSprite);
 	void SetFont(const sf::Font& font);
 	void SetName(std::string aName);
@@ -26,7 +27,7 @@ public:
 	std::string GetName();
 	sf::Vector2f GetPosition();
 	void SetOrigin(float x, float y);
-
+	bool isAlive;
 protected:
 	sf::Text text;
 	std::string name;

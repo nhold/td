@@ -9,7 +9,6 @@ Node::Node()
 	name = "null";
 	text.setString(name);
 	text.setFillColor(sf::Color::Magenta);
-	std::cout << text.getString().toAnsiString() << " <- Node Default Constructor." << std::endl;
 }
 
 Node::Node(sf::Sprite * aSprite, std::string aName)
@@ -18,8 +17,6 @@ Node::Node(sf::Sprite * aSprite, std::string aName)
 	name = aName;
 	text.setString(name);
 	text.setFillColor(sf::Color::Magenta);
-
-	std::cout << text.getString().toAnsiString() << " <- Node Data Constructor. " << std::endl;
 }
 
 Node::Node(const Node & otherNode)
@@ -34,14 +31,11 @@ Node::Node(const Node & otherNode)
 	text.setString(name);
 	text.setFillColor(sf::Color::Magenta);
 
-
 	if (otherNode.text.getFont() != nullptr)
 	{
 		text.setFont(*otherNode.text.getFont());
 		text.setCharacterSize(12);
 	}
-
-	std::cout << text.getString().toAnsiString() << " <- Node Copy Constructor" << std::endl;
 }
 
 Node::~Node()
@@ -68,7 +62,13 @@ void Node::SetPosition(sf::Vector2f newPosition)
 	text.setPosition(newPosition + sf::Vector2f(0, 20));
 }
 
-sf::Vector2f  Node::GetPosition()
+void Node::SetDirection(sf::Vector2f direction)
+{
+	float rotAngle = ToAngle(direction);
+	sprite->setRotation(rotAngle);
+}
+
+sf::Vector2f Node::GetPosition()
 {
 	return sprite->getPosition();
 }

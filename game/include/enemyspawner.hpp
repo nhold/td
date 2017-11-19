@@ -2,18 +2,10 @@
 #define ENEMYSPAWNER_HPP
 
 #include <enemy.hpp>
+#include <spawner.hpp>
 
-class EnemySpawner
+class EnemySpawner : public Spawner<Enemy>
 {
-public:
-	EnemySpawner();
-	~EnemySpawner();
-	void AddType(Enemy type);
-	void Spawn(int typeID);
-	void DespawnBack();
-
-	std::vector<Enemy> enemyTypes;
-	std::vector<Enemy*> enemyInstances;
 };
 
 #endif // !ENEMYSPAWNER_HPP

@@ -8,7 +8,7 @@
 #include <enemy.hpp>
 #include <tower.hpp>
 
-Level::Level(EnemySpawner& enemySpawner) : enemySpawner(enemySpawner)
+Level::Level(Spawner<Enemy>& enemySpawner, Spawner<Tower>& towerSpawner, Spawner<Projectile>& projectileSpawner) : enemySpawner(enemySpawner), towerSpawner(towerSpawner), projectileSpawner(projectileSpawner)
 {
 	path = nullptr;
 	startingGold = 100;
@@ -39,7 +39,80 @@ void Level::Load(std::string tileMapFileName, AssetDatabase& assetDatabase)
 	waves.push_back(wave);
 }
 
-void Level::Update(std::vector<Enemy*>& enemies, std::vector<Tower*>& towers)
+void Level::Update()
+{
+	PostUpdate();
+
+	UpdateWave();
+	UpdateEnemies();
+	base->Update(enemySpawner.instances);
+	UpdateTowers();
+
+	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
+	{
+		auto projectile = (*it);
+		projectile->Update();
+
+		if (!projectile->node.isAlive)
+		{
+			deadProjectileVector.push_back(projectile);
+		}
+	}
+}
+
+void Level::UpdateTowers()
+{
+	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
+	{
+		(*it)->Update(enemySpawner.instances);
+	}
+}
+
+void Level::UpdateEnemies()
+{
+	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
+	{
+		auto enemy = (*it);
+		enemy->Update();
+
+		if (!enemy->node.isAlive)
+		{
+			deadEnemyVector.push_back(enemy);
+		}
+	}
+}
+
+void Level::PostUpdate()
+{
+	for (auto it = deadEnemyVector.begin(); it != deadEnemyVector.end(); ++it)
+	{
+		auto killIt = std::find(enemySpawner.instances.begin(), enemySpawner.instances.end(), (*it));
+
+		if (killIt != enemySpawner.instances.end())
+		{
+			currentGold += (*killIt)->worth;
+			enemySpawner.instances.erase(killIt);
+			delete (*it);
+		}
+	}
+
+
+	for (auto it = deadProjectileVector.begin(); it != deadProjectileVector.end(); ++it)
+	{
+		auto killIt = std::find(projectileSpawner.instances.begin(), projectileSpawner.instances.end(), (*it));
+
+		if (killIt != projectileSpawner.instances.end())
+		{
+			projectileSpawner.instances.erase(killIt);
+			delete (*it);
+		}
+	}
+
+	deadProjectileVector.clear();
+	deadEnemyVector.clear();
+}
+
+void Level::UpdateWave()
 {
 	if (currentWave < waves.size())
 	{
@@ -57,35 +130,6 @@ void Level::Update(std::vector<Enemy*>& enemies, std::vector<Tower*>& towers)
 				currentWave++;
 			}
 		}
-	}
-
-	std::vector<Enemy*> deadVector;
-	for (auto it = enemies.begin(); it != enemies.end(); ++it)
-	{
-		(*it)->Update();
-		if ((*it)->currentHealth <= 0)
-		{
-			deadVector.push_back((*it));
-		}
-	}
-
-	for (auto it = deadVector.begin(); it != deadVector.end(); ++it)
-	{
-		auto killIt = std::find(enemies.begin(), enemies.end(), (*it));
-
-		if (killIt != enemies.end())
-		{
-			currentGold += (*killIt)->worth;
-			enemies.erase(killIt);
-			delete (*it);
-		}
-	}
-
-	base->Update(enemies);
-
-	for (auto it = towers.begin(); it != towers.end(); ++it)
-	{
-		(*it)->Update(enemies);
 	}
 }
 

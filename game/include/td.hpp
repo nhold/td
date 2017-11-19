@@ -4,12 +4,7 @@
 #include <game.hpp>
 #include <level.hpp>
 #include <enemyspawner.hpp>
-
-enum GameState
-{
-	Menu,
-	Game
-};
+#include <projectile.hpp>
 
 class Td : public Game
 {
@@ -25,15 +20,12 @@ protected:
 	void CreateTypes();
 
 private:
-	GameState currentState;
 	Level currentLevel;
 	sf::CircleShape towerRadius;
 
-	EnemySpawner enemySpawner;
-	
-	
-	std::vector<Tower*> towers;
-	std::vector<Tower> towerTypes;
+	Spawner<Enemy> enemySpawner;
+	Spawner<Tower> towerSpawner;
+	Spawner<Projectile> projectileSpawner;
 
 	std::default_random_engine generator;
 	std::uniform_int_distribution<int> distribution;

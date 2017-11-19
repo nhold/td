@@ -2,6 +2,7 @@
 #define VECTORUTILITY_HPP
 
 #include <SFML/System/Vector2.hpp>
+#include <mathutility.hpp>
 #include <string>
 
 sf::Vector2f Normalise(sf::Vector2f initial);
@@ -16,5 +17,11 @@ std::string ToString(sf::Vector2<T> value)
 	return rValue;
 }
 
+template<typename T>
+float ToAngle(sf::Vector2<T> value)
+{
+	value = Normalise(value);
+	float rotAngle = std::atan2(value.y, value.x) * PI_F_180);
+}
 
 #endif //VECTORUTILITY_HPP

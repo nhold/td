@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <node.hpp>
+
 class Path;
 
 class Enemy

@@ -25,8 +25,8 @@ void Base::Update(std::vector<Enemy*>& enemies)
 			{
 				health -= enemy->damage;
 				enemy->currentHealth = 0; // Kill it next frame.
+				enemy->node.isAlive = false;
 				enemy->worth = 0; // Remove it's worth so we don't get gold.
-				node.GetText().setString(node.GetName() + std::to_string(health));
 			}
 		}
 	}

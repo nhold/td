@@ -12,7 +12,6 @@ Enemy::Enemy()
 	damage = 1;
 	worth = 1;
 	currentNode = 0;
-	std::cout << node.GetText().getString().toAnsiString() << " Default Constructor." << std::endl;
 }
 
 Enemy::Enemy(int health, int movementSpeed, int damage, int worth, sf::Sprite* sprite, Path* path, std::string name)
@@ -27,7 +26,6 @@ Enemy::Enemy(int health, int movementSpeed, int damage, int worth, sf::Sprite* s
 	SetPath(path);
 	this->worth = worth;
 	currentNode = 0;
-	std::cout << node.GetText().getString().toAnsiString() << " Data Constructor. " << std::endl;
 }
 
 Enemy::Enemy(const Enemy & otherEnemy) : node(otherEnemy.node)
@@ -40,8 +38,6 @@ Enemy::Enemy(const Enemy & otherEnemy) : node(otherEnemy.node)
 	nodePoints = otherEnemy.nodePoints;
 	currentNode = otherEnemy.currentNode;
 	node.SetOrigin(0.5f, 0.9f);
-
-	std::cout << node.GetText().getString().toAnsiString() << " Copy Constructor" << std::endl;
 }
 
 Enemy::~Enemy()
@@ -55,11 +51,15 @@ void Enemy::SetPath(Path* path)
 
 	nodePoints = path->nodePoints;
 	currentNode = 0;
-	std::cout << node.GetText().getString().toAnsiString() <<  " Set Path " << std::endl;
 }
 
 void Enemy::Update()
 {
+	if (currentHealth <= 0)
+	{
+		node.isAlive = false;
+	}
+
 	if (nodePoints.size() == 0)
 		return;
 

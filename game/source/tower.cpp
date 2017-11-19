@@ -5,20 +5,7 @@
 #include <vectorutility.hpp>
 #include <node.hpp>
 
-Tower::Tower()
-{
-	damage = 1;
-	buildTime = 1;
-	numberOfTargets = 1;
-	radius = 1.f;
-	fireRate = 1.f;
-	cost = 1;
-	currentRate = fireRate;
-	isBuilding = false;
-	std::cout << node.GetText().getString().toAnsiString() << " Default Constructor." << std::endl;
-}
-
-Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name)
+Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name, Spawner<Projectile>& projectileSpawner) : projectileSpawner(projectileSpawner)
 {
 	damage = aDamage;
 	node.SetSprite(sprite);
@@ -31,10 +18,9 @@ Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius,
 	currentRate = fireRate;
 	
 	isBuilding = false;
-	std::cout << node.GetText().getString().toAnsiString() << " Data Constructor. " << std::endl;
 }
 
-Tower::Tower(const Tower & otherTower) : node(otherTower.node)
+Tower::Tower(const Tower & otherTower) : node(otherTower.node), projectileSpawner(otherTower.projectileSpawner)
 {
 	damage = otherTower.damage;
 	numberOfTargets = otherTower.numberOfTargets;
@@ -44,12 +30,7 @@ Tower::Tower(const Tower & otherTower) : node(otherTower.node)
 	this->cost = otherTower.cost;
 	currentRate = fireRate;
 
-
 	targets = otherTower.targets;
-
-
-
-	std::cout << node.GetText().getString().toAnsiString() << " Copy Constructor" << std::endl;
 }
 
 Tower::~Tower()
@@ -62,7 +43,6 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 	
 	if (isBuilding)
 	{
-		//node.GetText().setString(node.GetName() + " : Building...");
 		buildTime -= Game::deltaTime;
 		if (buildTime <= 0)
 		{
@@ -74,7 +54,6 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 		}
 	}
 
-	//node.GetText().setString(node.GetName() + " : Built : Targets: " + std::to_string(targets.size()));
 	RemoveDeadTargets(allEnemies);
 
 	if (targets.size() < numberOfTargets)
@@ -118,7 +97,7 @@ void Tower::RemoveDeadTargets(std::vector<Enemy*>& allEnemies)
 		else
 		{
 			auto vec = enemy->node.GetSprite()->getPosition() - node.GetSprite()->getPosition();
-			if (Magnitude(vec) > radius)
+			if (Magnitude(vec) > radius || !enemy->node.isAlive)
 			{
 				removeVec.push_back(enemy);
 			}
@@ -144,7 +123,10 @@ void Tower::FindTarget(std::vector<Enemy*>& allEnemies)
 		auto vec = (*it)->node.GetSprite()->getPosition() - node.GetSprite()->getPosition();
 		if (Magnitude(vec) <= radius)
 		{
-			targets.push_back((*it));
+			if (std::find(targets.begin(), targets.end(), (*it)) == targets.end())
+			{
+				targets.push_back((*it));
+			}
 		}
 
 		if (targets.size() >= numberOfTargets)
@@ -160,7 +142,9 @@ void Tower::Shoot()
 		currentRate = fireRate;
 		for each (auto enemy in targets)
 		{
-			enemy->currentHealth -= damage;
+			auto projectile = projectileSpawner.Spawn(damage);
+			projectile->enemy = enemy;
+			projectile->node.SetPosition(node.GetPosition());
 		}
 	}
 }

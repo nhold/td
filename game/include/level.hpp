@@ -7,6 +7,7 @@
 #include <wave.hpp>
 #include <assetdatabase.hpp>
 #include <enemyspawner.hpp>
+#include <projectile.hpp>
 
 class Path;
 class Base;
@@ -16,17 +17,18 @@ class Tower;
 class Level
 {
 public:
-	Level(EnemySpawner& enemySpawner);
+	Level(Spawner<Enemy>& enemySpawner, Spawner<Tower>& towerSpawner, Spawner<Projectile>& projectileSpawner);
 	~Level();
 
 	void Load(std::string tileMapFileName, AssetDatabase& assetDatabase);
 
-	void Update(std::vector<Enemy*>& enemies, std::vector<Tower*>& towers);
+	void Update();
+	
 	void Render(sf::RenderWindow& window);
 
 	TileMap tileMap;
 	BuildingMap buildingMap;
-	EnemySpawner& enemySpawner;
+	
 	Path* path;
 	Base* base;
 	std::vector<Wave> waves;
@@ -35,6 +37,20 @@ public:
 	float time = 0.1f;
 	int startingGold;
 	int currentGold;
+
+private:
+
+	Spawner<Enemy>& enemySpawner;
+	Spawner<Tower>& towerSpawner;
+	Spawner<Projectile>& projectileSpawner;
+
+	std::vector<Enemy*> deadEnemyVector;
+	std::vector<Projectile*> deadProjectileVector;
+
+	void UpdateWave();
+	void UpdateEnemies();
+	void UpdateTowers();
+	void PostUpdate();
 };
 
 #endif // !LEVEL_HPP
