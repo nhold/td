@@ -37,7 +37,6 @@ Tower::~Tower()
 {
 }
 
-
 void Tower::Update(std::vector<Enemy*>& allEnemies)
 {
 	
@@ -118,19 +117,36 @@ void Tower::RemoveDeadTargets(std::vector<Enemy*>& allEnemies)
 
 void Tower::FindTarget(std::vector<Enemy*>& allEnemies)
 {
+	if (targets.size() >= numberOfTargets)
+		return;
+
+	float distance = 99999;
+	Enemy* newTarget = nullptr;
+
 	for (auto it = allEnemies.begin(); it != allEnemies.end(); ++it)
 	{
-		auto vec = (*it)->node.GetSprite()->getPosition() - node.GetSprite()->getPosition();
-		if (Magnitude(vec) <= radius)
+		auto enemy = (*it);
+		auto vec = enemy->node.GetSprite()->getPosition() - node.GetSprite()->getPosition();
+
+		float newClosestDistance = Magnitude(vec);
+		float old = distance;
+
+		if (std::find(targets.begin(), targets.end(), enemy) == targets.end())
 		{
-			if (std::find(targets.begin(), targets.end(), (*it)) == targets.end())
+			if (newClosestDistance <= radius)
 			{
-				targets.push_back((*it));
+				if (newClosestDistance < distance)
+				{
+					distance = newClosestDistance;
+					newTarget = enemy;
+				}
 			}
 		}
+	}
 
-		if (targets.size() >= numberOfTargets)
-			return;
+	if (newTarget != nullptr)
+	{
+		targets.push_back(newTarget);
 	}
 }
 
