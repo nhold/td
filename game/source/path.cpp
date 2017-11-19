@@ -1,20 +1,5 @@
 #include <path.hpp>
 
-// TODO: Visualise path with this?
-/*frameWait -= deltaTime;
-if (frameWait <= 0)
-{
-frameWait = 0.2f;
-if (currentNode >= path->nodePoints.size())
-{
-currentNode = 0;
-}
-
-enemySprite->setPosition(path->nodePoints[currentNode].x * 32 + 8, path->nodePoints[currentNode].y * 32 + 8);
-currentNode++;
-}*/
-
-
 Path::Path(TileMap& tileMap)
 {
 	bool foundFirst = false;

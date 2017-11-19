@@ -15,16 +15,16 @@ Enemy::Enemy()
 	std::cout << node.GetText().getString().toAnsiString() << " Default Constructor." << std::endl;
 }
 
-Enemy::Enemy(int aHealth, int aMovementSpeed, int aDamage, int worth, sf::Sprite * sprite, Path * aPath, std::string name)
+Enemy::Enemy(int health, int movementSpeed, int damage, int worth, sf::Sprite* sprite, Path* path, std::string name)
 {
 	node.SetSprite(sprite);
 	node.SetName(name);
 	node.SetOrigin(0.5f, 0.9f);
-	currentHealth = aHealth;
+	currentHealth = health;
 	maximumHealth = currentHealth;
-	movementSpeed = aMovementSpeed;
-	damage = aDamage;
-	SetPath(aPath);
+	this->movementSpeed = movementSpeed;
+	this->damage = damage;
+	SetPath(path);
 	this->worth = worth;
 	currentNode = 0;
 	std::cout << node.GetText().getString().toAnsiString() << " Data Constructor. " << std::endl;
@@ -65,8 +65,6 @@ void Enemy::Update()
 
 	if (currentNode < nodePoints.size())
 	{
-		//node.GetText().setString(node.GetName() + " : Health: " + std::to_string(currentHealth) +
-		//	" - Nodes: " + std::to_string(currentNode) + " / " + std::to_string(nodePoints.size()));
 		MoveToCurrentNode();
 
 		if (AtCurrentNode())

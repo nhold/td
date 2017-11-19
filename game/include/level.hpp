@@ -6,6 +6,7 @@
 #include <vector>
 #include <wave.hpp>
 #include <assetdatabase.hpp>
+#include <enemyspawner.hpp>
 
 class Path;
 class Base;
@@ -15,7 +16,7 @@ class Tower;
 class Level
 {
 public:
-	Level();
+	Level(EnemySpawner& enemySpawner);
 	~Level();
 
 	void Load(std::string tileMapFileName, AssetDatabase& assetDatabase);
@@ -25,9 +26,13 @@ public:
 
 	TileMap tileMap;
 	BuildingMap buildingMap;
+	EnemySpawner& enemySpawner;
 	Path* path;
 	Base* base;
 	std::vector<Wave> waves;
+	int currentWave;
+	int currentData;
+	float time = 0.1f;
 	int startingGold;
 	int currentGold;
 };

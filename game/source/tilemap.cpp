@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <fstream>
-#include <path.hpp>
 
 TileMap::TileMap()
 {
@@ -69,7 +68,6 @@ void TileMap::LoadFromFile(const std::string& fileName)
 
 				x++;
 			}
-			//std::cout << line << '\n';
 			x = 0;
 			y++;
 
@@ -79,7 +77,6 @@ void TileMap::LoadFromFile(const std::string& fileName)
 				break;
 			}
 		}
-		std::cout << std::endl;
 		myfile.close();
 	}
 }
@@ -106,7 +103,6 @@ void TileMap::SaveToFile(const std::string& fileName)
 			line += '\n';
 		}
 
-		//std::cout << line << std::endl;
 		myfile << line;
 
 		myfile.close();

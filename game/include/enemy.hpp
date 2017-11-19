@@ -12,7 +12,7 @@ class Enemy
 {
 public:
 	Enemy();
-	Enemy(int aHealth, int aMovementSpeed, int aDamage, int worth, sf::Sprite* aSprite, Path* aPath, std::string aName);
+	Enemy(int health, int movementSpeed, int damage, int worth, sf::Sprite* sprite, Path* path, std::string name);
 	Enemy(const Enemy& otherEnemy);
 	~Enemy();
 
@@ -22,15 +22,15 @@ public:
 	int damage;
 	int worth;
 
+	Node node;
 
 	void SetPath(Path* path);
 
-
 	void Update();
-	Node node;
 private:
 	bool AtCurrentNode();
 	void MoveToCurrentNode();
+
 	std::vector<sf::Vector2i> nodePoints;
 	int currentNode;
 

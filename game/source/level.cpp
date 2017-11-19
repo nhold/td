@@ -8,10 +8,10 @@
 #include <enemy.hpp>
 #include <tower.hpp>
 
-Level::Level()
+Level::Level(EnemySpawner& enemySpawner) : enemySpawner(enemySpawner)
 {
 	path = nullptr;
-	startingGold = 1337;
+	startingGold = 100;
 }
 
 Level::~Level()
@@ -31,12 +31,35 @@ void Level::Load(std::string tileMapFileName, AssetDatabase& assetDatabase)
 	tileMap.tileTypes[0] = new sf::Sprite(assetDatabase.GetTexture("assets/grass.png"));
 	tileMap.tileTypes[1] = new sf::Sprite(assetDatabase.GetTexture("assets/dirt.png"));
 	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
+	
+	currentWave = 0;
+	currentData = 0;
+	Wave wave;
+	wave.LoadFromFile("assets/level1_wavedata.txt");
+	waves.push_back(wave);
 }
 
 void Level::Update(std::vector<Enemy*>& enemies, std::vector<Tower*>& towers)
 {
-	std::vector<Enemy*> deadVector;
+	if (currentWave < waves.size())
+	{
+		time -= Game::deltaTime;
+		if (time <= 0)
+		{
+			if (currentData < waves[currentWave].enemySpawnData.size())
+			{
+				time = waves[currentWave].enemySpawnData[currentData].spawnTime;
+				enemySpawner.Spawn(waves[currentWave].enemySpawnData[currentData].type);
+				currentData++;
+			}
+			else
+			{
+				currentWave++;
+			}
+		}
+	}
 
+	std::vector<Enemy*> deadVector;
 	for (auto it = enemies.begin(); it != enemies.end(); ++it)
 	{
 		(*it)->Update();

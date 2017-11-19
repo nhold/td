@@ -3,20 +3,13 @@
 #include <enemy.hpp>
 #include <base.hpp>
 
-Td::Td() : Game(640, 640, "TD"), distribution(0, 1)
+Td::Td() : Game(640, 640, "TD"), distribution(0, 1), currentLevel(enemySpawner)
 {
 
 }
 
 Td::~Td()
 {
-	while (enemies.size() > 0)
-	{
-		auto enem = enemies.back();
-		delete enem;
-		enemies.pop_back();
-	}
-
 	while (towers.size() > 0)
 	{
 		auto tower = towers.back();
@@ -49,7 +42,7 @@ void Td::Initialise()
 void Td::Update()
 {
 	Game::Update();
-	currentLevel.Update(enemies, towers);
+	currentLevel.Update(enemySpawner.enemyInstances, towers);
 
 	auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
 	auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(window)));
@@ -103,7 +96,7 @@ void Td::Render()
 		window.draw((*it)->GetDebugLines());
 	}
 
-	for (auto it = enemies.begin(); it != enemies.end(); ++it)
+	for (auto it = enemySpawner.enemyInstances.begin(); it != enemySpawner.enemyInstances.end(); ++it)
 	{
 		window.draw(*(*it)->node.GetSprite());
 	}
@@ -120,36 +113,17 @@ void Td::ProcessInput(sf::Event currentEvent)
 		if (currentEvent.key.code == sf::Keyboard::A)
 		{
 			int dice_roll = distribution(generator);
-			auto eT = enemyTypes[dice_roll];
-			eT.node.SetName(eT.node.GetName() + " --ID:-- " + std::to_string(enemies.size()));
-			enemies.push_back(new Enemy(eT));
+			enemySpawner.Spawn(dice_roll);
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::Space)
 		{
-			auto eT = new Enemy(enemyTypes[2]);
-			eT->node.SetName(eT->node.GetName() + " --ID:-- " + std::to_string(enemies.size()));
-			enemies.push_back(eT);
+			enemySpawner.Spawn(2);
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::D)
 		{
-			if (enemies.size() > 0)
-			{
-				auto enemy = enemies.back();
-				enemies.pop_back();
-				delete enemy;
-			}
-		}
-
-		if (currentEvent.key.code == sf::Keyboard::C)
-		{
-			///debugEntities = false;
-		}
-
-		if (currentEvent.key.code == sf::Keyboard::Z)
-		{
-			//debugEntities = true;
+			enemySpawner.DespawnBack();
 		}
 	}
 }
@@ -168,9 +142,9 @@ void Td::CreateTypes()
 	enemy3.node.SetPosition(GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy3.node.SetFont(debugFont);
 
-	enemyTypes.push_back(enemy1);
-	enemyTypes.push_back(enemy2);
-	enemyTypes.push_back(enemy3);
+	enemySpawner.AddType(enemy1);
+	enemySpawner.AddType(enemy2);
+	enemySpawner.AddType(enemy3);
 
 	Tower tower1(2, 3, 5.f, 100.f, 1.f, 25, new sf::Sprite(assetDatabase.GetTexture("assets/tower1.png")), "Tower One");
 	tower1.node.SetFont(debugFont);

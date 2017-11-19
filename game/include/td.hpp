@@ -3,6 +3,7 @@
 
 #include <game.hpp>
 #include <level.hpp>
+#include <enemyspawner.hpp>
 
 enum GameState
 {
@@ -28,9 +29,9 @@ private:
 	Level currentLevel;
 	sf::CircleShape towerRadius;
 
-	// TODO: Game data?
-	std::vector<Enemy*> enemies;
-	std::vector<Enemy> enemyTypes;
+	EnemySpawner enemySpawner;
+	
+	
 	std::vector<Tower*> towers;
 	std::vector<Tower> towerTypes;
 

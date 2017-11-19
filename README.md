@@ -9,11 +9,9 @@
 * ~~Tower cost~~
 * ~~Base getting destroyed~~
 * Game End state (Win\Lose\Retry)
-* Waves (Loaded from file etc)
-* Refactor the path follow logic
-* Create actual A* from path logic
-* Optimise tilemap
+* ~~Waves (Loaded from file etc)~~
 * ~~Everything should use node~~
+* Projectiles
 
 ### Code Standards
 
