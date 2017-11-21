@@ -17,21 +17,10 @@ protected:
 	void Update() override;
 	void Render() override;
 	void ProcessInput(sf::Event currentEvent) override;
-	void CreateTypes();
+	
 
 private:
-	Level currentLevel;
-	sf::CircleShape towerRadius;
-
-	Spawner<Enemy> enemySpawner;
-	Spawner<Tower> towerSpawner;
-	Spawner<Projectile> projectileSpawner;
-
-	std::default_random_engine generator;
-	std::uniform_int_distribution<int> distribution;
-
-	sf::Text goldText;
-	sf::Sprite cursor;
+	
 
 };
 

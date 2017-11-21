@@ -3,6 +3,7 @@
 
 #include <vector>
 
+// TODO: More like a pool?
 template<typename T>
 class Spawner
 {
@@ -44,6 +45,16 @@ public:
 	void Spawner::DespawnBack()
 	{
 		if (instances.size() > 0)
+		{
+			auto instance = instances.back();
+			instances.pop_back();
+			delete instance;
+		}
+	}
+
+	void DespawnAll()
+	{
+		while (instances.size() > 0)
 		{
 			auto instance = instances.back();
 			instances.pop_back();

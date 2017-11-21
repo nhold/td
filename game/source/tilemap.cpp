@@ -30,12 +30,13 @@ void TileMap::Render(sf::RenderWindow* window)
 	{
 		for (int y = 0; y < tileMapSize; y++)
 		{
-			//if (tiles[x][y] < 2)
-			//{
+			if (tiles[x][y] > 2)
+				tiles[x][y] = 2;
+
 				sf::Sprite* sprite = tileTypes[tiles[x][y]];
 				sprite->setPosition(static_cast<float>(x * 32), static_cast<float>(y * 32));
 				window->draw(*sprite);
-			//}
+			
 		}
 	}
 }
