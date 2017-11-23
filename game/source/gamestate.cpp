@@ -94,15 +94,14 @@ void GameState::Update()
 		towerRadius.setPosition(worldGridMousePosition);
 	}
 
-	std::string currentDataCount = "?";
 
-	if (currentWave < currentLevel.waves.size())
-		currentDataCount = std::to_string(currentLevel.waves[currentWave].enemySpawnData.size());
-
+	int displayCurrentWave = std::min(currentWave + 1, (int)currentLevel.waves.size());
+	int displayCurrentData = std::min(currentData + 1, (int)currentLevel.waves[displayCurrentWave-1].enemySpawnData.size());
 	goldText.setString("Gold: " + std::to_string(currentGold) + 
 		"\n" + "Health: " + std::to_string(currentLevel.base->health) + 
-		"\n" + "Wave: " + std::to_string(currentWave+1) + "/" + std::to_string(currentLevel.waves.size()) +
-		"\n" + "Enemies: " + std::to_string(currentData+1) + "/" + currentDataCount);
+		"\n" + "Wave: " + std::to_string(displayCurrentWave) + "/" + std::to_string(currentLevel.waves.size()) +
+		"\n" + "Enemies: " + std::to_string(displayCurrentData) + "/" + std::to_string(currentLevel.waves[displayCurrentWave-1].enemySpawnData.size()) + 
+		"\n" + "Next Enemy: " + std::to_string(time));
 
 	PostUpdate();
 
