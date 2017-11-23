@@ -5,7 +5,11 @@
 #include <level.hpp>
 #include <enemyspawner.hpp>
 #include <projectile.hpp>
-#include <gamestate.hpp>
+
+#include <statemachine.hpp>
+
+class GameState;
+class MenuState;
 
 class Td : public Game
 {
@@ -20,7 +24,9 @@ protected:
 	void ProcessInput(sf::Event currentEvent) override;
 
 private:
-	GameState gameState;
+	GameState* gameState;
+	MenuState* menuState;
+	StateMachine stateMachine;
 
 };
 

@@ -2,6 +2,7 @@
 
 #include <level.hpp>
 #include <state.hpp>
+#include <statemachine.hpp>
 
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -9,12 +10,12 @@
 
 #include <random>
 
-class Level;
+class MenuState;
 
 class GameState : public State
 {
 public:
-	GameState(AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow);
+	GameState(StateMachine& stateMachine, AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow);
 	~GameState();
 
 	virtual void Initialise() override;
@@ -25,8 +26,11 @@ public:
 
 	void SetLevel(std::string levelFileName);
 
+	MenuState* menuState;
 private:
+	
 	Level currentLevel;
+	StateMachine& stateMachine;
 	sf::CircleShape towerRadius;
 	sf::RenderWindow& renderWindow;
 

@@ -6,10 +6,16 @@
 #include <game.hpp>
 #include <path.hpp>
 #include <assethelper.hpp>
+#include <menustate.hpp>
 
-GameState::GameState(AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow) : assetDatabase(assetDatabase), renderWindow(renderWindow), distribution(0, 1), currentLevel(assetDatabase)
+GameState::GameState(StateMachine& stateMachine, AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow) : assetDatabase(assetDatabase), 
+	renderWindow(renderWindow), 
+	distribution(0, 1), 
+	currentLevel(assetDatabase), 
+	stateMachine(stateMachine)
 {
 	currentGold = 1;
+	menuState = menuState;
 }
 
 GameState::~GameState()
@@ -134,7 +140,6 @@ void GameState::Render()
 
 void GameState::ProcessInput(sf::Event currentEvent)
 {
-	// Debug Keys.
 	if (currentEvent.type == sf::Event::KeyPressed)
 	{
 		if (currentEvent.key.code == sf::Keyboard::A)
@@ -152,15 +157,22 @@ void GameState::ProcessInput(sf::Event currentEvent)
 		{
 			enemySpawner.DespawnBack();
 		}
+
+		if (currentEvent.key.code == sf::Keyboard::Escape)
+		{
+			stateMachine.SetState(menuState);
+		}
 	}
 }
 
 void GameState::SetLevel(std::string levelFileName)
 {
 	currentLevel.Load(levelFileName);
+
 	currentGold = currentLevel.startingGold;
 	currentWave = 0;
 	currentData = 0;
+
 	currentLevel.tileMap.tileTypes[0] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/grass.png").resource);
 	currentLevel.tileMap.tileTypes[1] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/dirt.png").resource);
 	currentLevel.tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
@@ -242,6 +254,7 @@ void GameState::UpdateWave()
 
 void GameState::CreateTypes()
 {
+	// TODO: Load types from file.
 	Enemy enemy1(10, 50, 5, 5, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/enemy1.png").resource), currentLevel.path, "Simpleton");
 	enemy1.node.SetPosition(Game::GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy1.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
