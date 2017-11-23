@@ -52,6 +52,8 @@ void GameState::Shutdown()
 	enemySpawner.DespawnAll();
 	towerSpawner.DespawnAll();
 	projectileSpawner.DespawnAll();
+	DestroyTypes();
+	currentLevel.buildingMap.Clear();
 }
 
 void GameState::Update()
@@ -110,6 +112,11 @@ void GameState::Update()
 		{
 			deadProjectileVector.push_back(projectile);
 		}
+	}
+
+	if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size())
+	{
+		stateMachine.SetState(menuState);
 	}
 }
 
@@ -278,4 +285,11 @@ void GameState::CreateTypes()
 	Projectile projectile(250, 5, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile1.png").resource), nullptr, "Test");
 	projectile.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	projectileSpawner.AddType(projectile);
+}
+
+void GameState::DestroyTypes()
+{
+	projectileSpawner.types.clear();
+	enemySpawner.types.clear();
+	towerSpawner.types.clear();
 }

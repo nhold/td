@@ -60,6 +60,7 @@ private:
 	void PostUpdate();
 
 	void CreateTypes();
+	void DestroyTypes();
 };
 
 #endif // !GAMESTATE_HPP

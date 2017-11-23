@@ -8,7 +8,7 @@ class BuildingMap
 public:
 	BuildingMap();
 	bool isBlocked[TileMap::tileMapSize][TileMap::tileMapSize];
-
+	void Clear();
 };
 
 #endif // !BULIDINGMAP_HPP
