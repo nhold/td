@@ -94,7 +94,15 @@ void GameState::Update()
 		towerRadius.setPosition(worldGridMousePosition);
 	}
 
-	goldText.setString("Gold: " + std::to_string(currentGold) + "\n" + "Health: " + std::to_string(currentLevel.base->health));
+	std::string currentDataCount = "?";
+
+	if (currentWave < currentLevel.waves.size())
+		currentDataCount = std::to_string(currentLevel.waves[currentWave].enemySpawnData.size());
+
+	goldText.setString("Gold: " + std::to_string(currentGold) + 
+		"\n" + "Health: " + std::to_string(currentLevel.base->health) + 
+		"\n" + "Wave: " + std::to_string(currentWave+1) + "/" + std::to_string(currentLevel.waves.size()) +
+		"\n" + "Enemies: " + std::to_string(currentData+1) + "/" + currentDataCount);
 
 	PostUpdate();
 
@@ -254,6 +262,7 @@ void GameState::UpdateWave()
 			{
 				// TODO: Add pause time.
 				currentWave++;
+				currentData = 0;
 			}
 		}
 	}
@@ -262,11 +271,11 @@ void GameState::UpdateWave()
 void GameState::CreateTypes()
 {
 	// TODO: Load types from file.
-	Enemy enemy1(10, 50, 5, 5, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/enemy1.png").resource), currentLevel.path, "Simpleton");
+	Enemy enemy1(13, 50, 5, 4, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/enemy1.png").resource), currentLevel.path, "Simpleton");
 	enemy1.node.SetPosition(Game::GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy1.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 
-	Enemy enemy2(5, 100, 5, 10, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/enemy2.png").resource), currentLevel.path, "Blarg");
+	Enemy enemy2(7, 100, 5, 8, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/enemy2.png").resource), currentLevel.path, "Blarg");
 	enemy2.node.SetPosition(Game::GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy2.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 
