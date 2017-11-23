@@ -17,14 +17,13 @@ class Tower;
 class Level
 {
 public:
-	Level(Spawner<Enemy>& enemySpawner, Spawner<Tower>& towerSpawner, Spawner<Projectile>& projectileSpawner);
+	Level(AssetDatabase& assetDatabase);
 	~Level();
 
-	void Load(std::string tileMapFileName, AssetDatabase& assetDatabase);
-
-	void Update();
-	
+	void Load(std::string filename);
 	void Render(sf::RenderWindow& window);
+
+	bool isValid();
 
 	TileMap tileMap;
 	BuildingMap buildingMap;
@@ -32,25 +31,12 @@ public:
 	Path* path;
 	Base* base;
 	std::vector<Wave> waves;
-	int currentWave;
-	int currentData;
-	float time = 0.1f;
 	int startingGold;
-	int currentGold;
-
+	std::string name;
+	
 private:
+	AssetDatabase& assetDatabase;
 
-	Spawner<Enemy>& enemySpawner;
-	Spawner<Tower>& towerSpawner;
-	Spawner<Projectile>& projectileSpawner;
-
-	std::vector<Enemy*> deadEnemyVector;
-	std::vector<Projectile*> deadProjectileVector;
-
-	void UpdateWave();
-	void UpdateEnemies();
-	void UpdateTowers();
-	void PostUpdate();
 };
 
 #endif // !LEVEL_HPP

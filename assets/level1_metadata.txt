@@ -1,0 +1,5 @@
+name:First Level
+tilemap:assets/level1_tilemap.txt
+startinggold:100
+wavedata:assets/level1_wavedata.txt
+end:end

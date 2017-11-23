@@ -5,6 +5,7 @@
 #include <level.hpp>
 #include <enemyspawner.hpp>
 #include <projectile.hpp>
+#include <gamestate.hpp>
 
 class Td : public Game
 {
@@ -17,10 +18,9 @@ protected:
 	void Update() override;
 	void Render() override;
 	void ProcessInput(sf::Event currentEvent) override;
-	
 
 private:
-	
+	GameState gameState;
 
 };
 

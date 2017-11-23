@@ -1,6 +1,6 @@
 #include <assetdatabase.hpp>
 
-sf::Texture& AssetDatabase::GetTexture(std::string fileName)
+/*sf::Texture& AssetDatabase::GetTexture(std::string fileName)
 {
 	auto it = textureCache.find(fileName);
 
@@ -12,4 +12,4 @@ sf::Texture& AssetDatabase::GetTexture(std::string fileName)
 	textureCache[fileName] = tex;
 
 	return textureCache[fileName];
-}
+}*/

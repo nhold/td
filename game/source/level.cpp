@@ -7,8 +7,10 @@
 #include <vector>
 #include <enemy.hpp>
 #include <tower.hpp>
+#include <assetdatabase.hpp>
+#include <fstream>
 
-Level::Level(Spawner<Enemy>& enemySpawner, Spawner<Tower>& towerSpawner, Spawner<Projectile>& projectileSpawner) : enemySpawner(enemySpawner), towerSpawner(towerSpawner), projectileSpawner(projectileSpawner)
+Level::Level(AssetDatabase& assetDatabase) : assetDatabase(assetDatabase)
 {
 	path = nullptr;
 	startingGold = 100;
@@ -20,116 +22,53 @@ Level::~Level()
 		delete path;
 }
 
-void Level::Load(std::string tileMapFileName, AssetDatabase& assetDatabase)
+void Level::Load(std::string filename)
 {
-	tileMap.LoadFromFile(tileMapFileName);
-	currentGold = startingGold;
-	path = new Path(tileMap);
-	base = new Base(100, new sf::Sprite(assetDatabase.GetTexture("assets/base.png")), "Base");
-	base->node.SetPosition(Game::GridToWorld(path->nodePoints.back()));
+	// Grab the level metadata.
+	std::string line;
+	std::ifstream myfile(filename);
 
-	tileMap.tileTypes[0] = new sf::Sprite(assetDatabase.GetTexture("assets/grass.png"));
-	tileMap.tileTypes[1] = new sf::Sprite(assetDatabase.GetTexture("assets/dirt.png"));
-	tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
-	
-	currentWave = 0;
-	currentData = 0;
-	Wave wave;
-	wave.LoadFromFile("assets/level1_wavedata.txt");
-	waves.push_back(wave);
-}
-
-void Level::Update()
-{
-	PostUpdate();
-
-	UpdateWave();
-	UpdateEnemies();
-	base->Update(enemySpawner.instances);
-	UpdateTowers();
-
-	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
+	if (myfile.is_open())
 	{
-		auto projectile = (*it);
-		projectile->Update();
-
-		if (!projectile->node.isAlive)
+		int i = 0;
+		
+		while (getline(myfile, line))
 		{
-			deadProjectileVector.push_back(projectile);
-		}
-	}
-}
+			auto splitIndex = line.find_first_of(":");
+			auto firstString = line.substr(0, splitIndex);
+			auto secondString = line.substr(splitIndex + 1);
 
-void Level::UpdateTowers()
-{
-	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
-	{
-		(*it)->Update(enemySpawner.instances);
-	}
-}
-
-void Level::UpdateEnemies()
-{
-	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
-	{
-		auto enemy = (*it);
-		enemy->Update();
-
-		if (!enemy->node.isAlive)
-		{
-			deadEnemyVector.push_back(enemy);
-		}
-	}
-}
-
-void Level::PostUpdate()
-{
-	for (auto it = deadEnemyVector.begin(); it != deadEnemyVector.end(); ++it)
-	{
-		auto killIt = std::find(enemySpawner.instances.begin(), enemySpawner.instances.end(), (*it));
-
-		if (killIt != enemySpawner.instances.end())
-		{
-			currentGold += (*killIt)->worth;
-			enemySpawner.instances.erase(killIt);
-			delete (*it);
-		}
-	}
-
-
-	for (auto it = deadProjectileVector.begin(); it != deadProjectileVector.end(); ++it)
-	{
-		auto killIt = std::find(projectileSpawner.instances.begin(), projectileSpawner.instances.end(), (*it));
-
-		if (killIt != projectileSpawner.instances.end())
-		{
-			projectileSpawner.instances.erase(killIt);
-			delete (*it);
-		}
-	}
-
-	deadProjectileVector.clear();
-	deadEnemyVector.clear();
-}
-
-void Level::UpdateWave()
-{
-	if (currentWave < waves.size())
-	{
-		time -= Game::deltaTime;
-		if (time <= 0)
-		{
-			if (currentData < waves[currentWave].enemySpawnData.size())
+			if (firstString == "name")
 			{
-				time = waves[currentWave].enemySpawnData[currentData].spawnTime;
-				enemySpawner.Spawn(waves[currentWave].enemySpawnData[currentData].type);
-				currentData++;
+				name = secondString;
 			}
-			else
+
+			if (firstString == "tilemap")
 			{
-				currentWave++;
+				tileMap.LoadFromFile(secondString);
 			}
+
+			if (firstString == "startinggold")
+			{
+				startingGold = std::stoi(secondString);
+			}
+
+			if (firstString == "wavedata")
+			{
+				Wave wave;
+				wave.LoadFromFile(secondString);
+				waves.push_back(wave);
+			}
+
+			if (firstString == "end")
+				break;
 		}
+
+		path = new Path(tileMap);
+		base = new Base(100, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/base.png").resource), "Base");
+		base->node.SetPosition(Game::GridToWorld(path->nodePoints.back()));
+
+		myfile.close();
 	}
 }
 
@@ -137,4 +76,9 @@ void Level::Render(sf::RenderWindow & window)
 {
 	tileMap.Render(&window);
 	window.draw(*base->node.GetSprite());
+}
+
+bool Level::isValid()
+{
+	return (base != nullptr);
 }
