@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <vector>
 #include <string>
 #include <node.hpp>
@@ -28,10 +29,12 @@ public:
 	void SetPath(Path* path);
 
 	void Update();
+
+	void RenderHealthbars(sf::RenderWindow& window);
 private:
 	bool AtCurrentNode();
 	void MoveToCurrentNode();
-
+	sf::Sprite* healthBarSprite;
 	std::vector<sf::Vector2i> nodePoints;
 	int currentNode;
 

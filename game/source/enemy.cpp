@@ -3,6 +3,8 @@
 #include <vectorutility.hpp>
 #include <game.hpp>
 #include <iostream>
+#include <assethelper.hpp>
+#include <mathutility.hpp>
 
 Enemy::Enemy()
 {
@@ -12,6 +14,8 @@ Enemy::Enemy()
 	damage = 1;
 	worth = 1;
 	currentNode = 0;
+	healthBarSprite = CreateTempSprite(sf::Color::Green, 32, 8);
+	healthBarSprite->setOrigin(16, 4);
 }
 
 Enemy::Enemy(int health, int movementSpeed, int damage, int worth, sf::Sprite* sprite, Path* path, std::string name)
@@ -26,6 +30,8 @@ Enemy::Enemy(int health, int movementSpeed, int damage, int worth, sf::Sprite* s
 	SetPath(path);
 	this->worth = worth;
 	currentNode = 0;
+	healthBarSprite = CreateTempSprite(sf::Color::Green, 32, 8);
+	healthBarSprite->setOrigin(16, 4);
 }
 
 Enemy::Enemy(const Enemy & otherEnemy) : node(otherEnemy.node)
@@ -37,11 +43,14 @@ Enemy::Enemy(const Enemy & otherEnemy) : node(otherEnemy.node)
 	worth = otherEnemy.worth;
 	nodePoints = otherEnemy.nodePoints;
 	currentNode = otherEnemy.currentNode;
+	healthBarSprite = CreateTempSprite(sf::Color::Green, 32, 8);
+	healthBarSprite->setOrigin(16, 4);
 	node.SetOrigin(0.5f, 0.9f);
 }
 
 Enemy::~Enemy()
 {
+	delete healthBarSprite;
 }
 
 void Enemy::SetPath(Path* path)
@@ -76,6 +85,14 @@ void Enemy::Update()
 		node.SetPosition(Game::GridToWorld(nodePoints[currentNode]));
 		std::cout << node.GetText().getString().toAnsiString() << std::endl;
 	}
+}
+
+void Enemy::RenderHealthbars(sf::RenderWindow & window)
+{
+	healthBarSprite->setPosition(node.GetPosition() + sf::Vector2f(0.0f, -32.f));
+	healthBarSprite->setScale(MapRange(0, maximumHealth, currentHealth, 0.0f, 1.0f), 1.0f);
+
+	window.draw(*healthBarSprite);
 }
 
 bool Enemy::AtCurrentNode()
