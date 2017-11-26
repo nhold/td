@@ -5,9 +5,9 @@
 #include <vectorutility.hpp>
 #include <node.hpp>
 
-Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name, Spawner<Projectile>& projectileSpawner) : projectileSpawner(projectileSpawner)
+Tower::Tower(int projectileID, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name, Spawner<Projectile>& projectileSpawner) : projectileSpawner(projectileSpawner)
 {
-	damage = aDamage;
+	this->projectileID = projectileID;
 	node.SetSprite(sprite);
 	node.SetName(name);
 	numberOfTargets = allowedTargetCount;
@@ -22,7 +22,7 @@ Tower::Tower(int aDamage, int allowedTargetCount, float buildTime, float radius,
 
 Tower::Tower(const Tower & otherTower) : node(otherTower.node), projectileSpawner(otherTower.projectileSpawner)
 {
-	damage = otherTower.damage;
+	this->projectileID = otherTower.projectileID;
 	numberOfTargets = otherTower.numberOfTargets;
 	this->buildTime = otherTower.buildTime;
 	this->radius = otherTower.radius;
@@ -39,7 +39,6 @@ Tower::~Tower()
 
 void Tower::Update(std::vector<Enemy*>& allEnemies)
 {
-	
 	if (isBuilding)
 	{
 		buildTime -= Game::deltaTime;
@@ -158,8 +157,8 @@ void Tower::Shoot()
 		currentRate = fireRate;
 		for each (auto enemy in targets)
 		{
-			auto projectile = projectileSpawner.Spawn(damage);
-			projectile->enemy = enemy;
+			auto projectile = projectileSpawner.Spawn(projectileID);
+			projectile->SetEnemy(enemy);
 			projectile->node.SetPosition(node.GetPosition());
 		}
 	}

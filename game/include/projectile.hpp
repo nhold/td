@@ -4,6 +4,7 @@
 #include <string>
 #include <SFML/System/Vector2.hpp>
 #include <node.hpp>
+#include <spawner.hpp>
 
 class Enemy;
 
@@ -16,7 +17,8 @@ class Projectile
 {
 public:
 	Projectile();
-	Projectile(int movementSpeed, int damage, sf::Sprite* sprite, Enemy* enemy, std::string name);
+	Projectile(int movementSpeed, int damage, sf::Sprite* sprite, bool cacheEnemyPosition, float radius, std::string name);
+
 	Projectile(const Projectile& otherProjectile);
 	~Projectile();
 
@@ -25,12 +27,20 @@ public:
 
 	Node node;
 
-	void Update();
-	Enemy* enemy;
-	sf::Vector2i targetPosition;
+	void Update(Spawner<Enemy>& enemySpawner);
+
+	void SetEnemy(Enemy* enemy);
+
 private:
-	bool Move();
-	bool AtTarget();
+	int bounceCount;
+	float radius;
+	bool Move(sf::Vector2f otherPosition);
+	bool AtTarget(sf::Vector2f otherPosition);
+	sf::Vector2f GetCurrentTargetPosition();
+
+	Enemy* enemy;
+	sf::Vector2f targetPosition;
+	bool cacheEnemyPosition;
 
 	
 };

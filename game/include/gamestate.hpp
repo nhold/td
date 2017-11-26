@@ -1,4 +1,5 @@
 #ifndef GAMESTATE_HPP
+#define GAMESTATE_HPP
 
 #include <level.hpp>
 #include <state.hpp>
@@ -53,6 +54,7 @@ private:
 
 	int currentWave;
 	int currentData;
+	int currentSelectedTower;
 	float time = 0.1f;
 	void UpdateWave();
 	void UpdateEnemies();

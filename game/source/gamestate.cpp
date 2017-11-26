@@ -16,6 +16,7 @@ GameState::GameState(StateMachine& stateMachine, AssetDatabase& assetDatabase, s
 {
 	currentGold = 1;
 	menuState = menuState;
+	currentSelectedTower = 0;
 }
 
 GameState::~GameState()
@@ -27,9 +28,11 @@ void GameState::Initialise()
 {
 	if (!currentLevel.isValid())
 	{
-		// Put the menu state back in.
+		stateMachine.SetState(menuState);
+		return;
 	}
 
+	currentSelectedTower = 0;
 	CreateTypes();
 
 	goldText.setFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
@@ -74,14 +77,14 @@ void GameState::Update()
 			cursor.setColor(sf::Color::Black);
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			{
-				if (towerSpawner.types[0].cost <= currentGold)
+				if (towerSpawner.types[currentSelectedTower].cost <= currentGold)
 				{
 					currentLevel.buildingMap.isBlocked[grid.x][grid.y] = true;
-					Tower* tower = towerSpawner.Spawn(0);
+					Tower* tower = towerSpawner.Spawn(currentSelectedTower);
 					tower->isBuilding = true;
 					tower->node.SetPosition(worldGridMousePosition);
 
-					currentGold -= towerSpawner.types[0].cost;
+					currentGold -= towerSpawner.types[currentSelectedTower].cost;
 				}
 				else
 				{
@@ -113,7 +116,7 @@ void GameState::Update()
 	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
 	{
 		auto projectile = (*it);
-		projectile->Update();
+		projectile->Update(enemySpawner);
 
 		if (!projectile->node.isAlive)
 		{
@@ -134,18 +137,19 @@ void GameState::Render()
 	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
 	{
 		renderWindow.draw(*(*it)->node.GetSprite());
-		//window.draw((*it)->GetDebugLines());
 	}
 
 	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
 	{
 		renderWindow.draw(*(*it)->node.GetSprite());
+		(*it)->RenderHealthbars(renderWindow);
 	}
 
 	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
 	{
 		renderWindow.draw(*(*it)->node.GetSprite());
 	}
+
 
 	renderWindow.draw(cursor);
 	renderWindow.draw(towerRadius);
@@ -170,6 +174,25 @@ void GameState::ProcessInput(sf::Event currentEvent)
 		if (currentEvent.key.code == sf::Keyboard::D)
 		{
 			enemySpawner.DespawnBack();
+		}
+
+		if (currentEvent.key.code == sf::Keyboard::Escape)
+		{
+			stateMachine.SetState(menuState);
+		}
+
+		if (currentEvent.key.code == sf::Keyboard::Num1)
+		{
+			currentSelectedTower = 0;
+			towerRadius.setRadius(towerSpawner.types[0].radius);
+			towerRadius.setOrigin(towerSpawner.types[0].radius, towerSpawner.types[0].radius);
+		}
+
+		if (currentEvent.key.code == sf::Keyboard::Num2)
+		{
+			currentSelectedTower = 1;
+			towerRadius.setRadius(towerSpawner.types[1].radius);
+			towerRadius.setOrigin(towerSpawner.types[1].radius, towerSpawner.types[1].radius);
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::Escape)
@@ -290,9 +313,17 @@ void GameState::CreateTypes()
 	tower1.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	towerSpawner.AddType(tower1);
 
-	Projectile projectile(250, 5, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile1.png").resource), nullptr, "Test");
+	Tower tower2(1, 1, 6.f, 150.f, 1.5f, 50, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower2.png").resource), "Tower Bomb", projectileSpawner);
+	tower1.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
+	towerSpawner.AddType(tower2);
+
+	Projectile projectile(250, 5, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile1.png").resource), false, 0, "Arrow");
 	projectile.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	projectileSpawner.AddType(projectile);
+
+	Projectile projectile2(150, 2, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile2.png").resource), true, 115.f, "Bomb");
+	projectile.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
+	projectileSpawner.AddType(projectile2);
 }
 
 void GameState::DestroyTypes()

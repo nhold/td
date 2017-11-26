@@ -61,6 +61,26 @@ public:
 			delete instance;
 		}
 	}
+
+	std::vector<T*> InArea(sf::Vector2f center, float radius)
+	{
+		std::vector<T*> withinArea;
+
+		for (auto it = instances.begin(); it != instances.end(); ++it)
+		{
+			auto type = (*it);
+
+			auto vec = type->node.GetPosition() - center;
+
+			float distance = Magnitude(vec);
+			if (distance < radius)
+			{
+				withinArea.push_back(type);
+			}
+		}
+
+		return withinArea;
+	}
 };
 
 #endif // !SPAWNER_HPP

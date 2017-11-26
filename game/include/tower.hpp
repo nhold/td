@@ -13,11 +13,11 @@ class Enemy;
 class Tower
 {
 public:
-	Tower(int aDamage, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name, Spawner<Projectile>& projectileSpawner);
+	Tower(int projectileID, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name, Spawner<Projectile>& projectileSpawner);
 	Tower(const Tower& otherEnemy);
 	~Tower();
 
-	int damage;
+	int projectileID;
 	int numberOfTargets;
 	float buildTime;
 	bool isBuilding;
