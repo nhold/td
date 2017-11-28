@@ -122,12 +122,6 @@ void GameState::Update()
 		}
 	}
 
-	auto copyInstances = projectileSpawner.instances;
-	for (auto it = copyInstances.begin(); it != copyInstances.end(); ++it)
-	{
-		(*it)->PostUpdate(enemySpawner);
-	}
-
 	if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size())
 	{
 		stateMachine.SetState(menuState);
@@ -340,7 +334,7 @@ void GameState::CreateTypes()
 	projectile2.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	projectileSpawner.AddType(projectile2);
 
-	Projectile projectile3(200, 2, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile3.png").resource), false, 0.f, 2, 125.f, "Blast", projectileSpawner);
+	Projectile projectile3(200, 2, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile3.png").resource), false, 0.f, 50, 125.f, "Blast", projectileSpawner);
 	projectile3.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	projectileSpawner.AddType(projectile3);
 }

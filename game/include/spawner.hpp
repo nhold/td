@@ -91,12 +91,18 @@ public:
 		{
 			auto type = (*it);
 
+			if (!type->node.isAlive)
+				continue;
+
 			if (std::find(exclusionVec.begin(), exclusionVec.end(), type) != exclusionVec.end())
 				continue;
 
 			auto vec = type->node.GetPosition() - center;
-
 			float distance = Magnitude(vec);
+
+			if (distance > radius)
+				continue;
+
 			if (distance < maxDistance)
 			{
 				closest = type;

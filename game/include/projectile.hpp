@@ -16,7 +16,6 @@ namespace sf
 class Projectile
 {
 public:
-	//Projectile();
 	Projectile(int movementSpeed, int damage, sf::Sprite* sprite, bool cacheEnemyPosition, float radius, int bounceCount, float bounceRadius, std::string name, Spawner<Projectile>& projectileSpawner);
 
 	Projectile(const Projectile& otherProjectile);
@@ -28,7 +27,6 @@ public:
 	Node node;
 
 	void Update(Spawner<Enemy>& enemySpawner);
-	void PostUpdate(Spawner<Enemy>& enemySpawner);
 
 	void SetEnemy(Enemy* enemy);
 	void SetBounceCount(int bounceCount);
