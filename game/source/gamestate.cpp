@@ -15,7 +15,6 @@ GameState::GameState(StateMachine& stateMachine, AssetDatabase& assetDatabase, s
 	stateMachine(stateMachine)
 {
 	currentGold = 1;
-	menuState = menuState;
 	currentSelectedTower = 0;
 }
 
@@ -64,7 +63,7 @@ void GameState::Update()
 	auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(renderWindow));
 	auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow)));
 
-	if (mousePosition.x >= 0 || mousePosition.y >= 0)
+	if (mousePosition.x >= 0 && mousePosition.y >= 0 && mousePosition.x <= 640 && mousePosition.y <= 640)
 	{
 		auto grid = Game::WorldToArray(mousePosition);
 
@@ -97,7 +96,6 @@ void GameState::Update()
 		towerRadius.setPosition(worldGridMousePosition);
 	}
 
-
 	int displayCurrentWave = std::min(currentWave + 1, (int)currentLevel.waves.size());
 	int displayCurrentData = std::min(currentData + 1, (int)currentLevel.waves[displayCurrentWave-1].enemySpawnData.size());
 	goldText.setString("Gold: " + std::to_string(currentGold) + 
@@ -122,6 +120,12 @@ void GameState::Update()
 		{
 			deadProjectileVector.push_back(projectile);
 		}
+	}
+
+	auto copyInstances = projectileSpawner.instances;
+	for (auto it = copyInstances.begin(); it != copyInstances.end(); ++it)
+	{
+		(*it)->PostUpdate(enemySpawner);
 	}
 
 	if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size())
@@ -195,6 +199,13 @@ void GameState::ProcessInput(sf::Event currentEvent)
 			towerRadius.setOrigin(towerSpawner.types[1].radius, towerSpawner.types[1].radius);
 		}
 
+		if (currentEvent.key.code == sf::Keyboard::Num3)
+		{
+			currentSelectedTower = 2;
+			towerRadius.setRadius(towerSpawner.types[2].radius);
+			towerRadius.setOrigin(towerSpawner.types[2].radius, towerSpawner.types[2].radius);
+		}
+
 		if (currentEvent.key.code == sf::Keyboard::Escape)
 		{
 			stateMachine.SetState(menuState);
@@ -219,7 +230,7 @@ void GameState::UpdateTowers()
 {
 	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
 	{
-		(*it)->Update(enemySpawner.instances);
+		(*it)->Update(enemySpawner);
 	}
 }
 
@@ -317,13 +328,21 @@ void GameState::CreateTypes()
 	tower1.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	towerSpawner.AddType(tower2);
 
-	Projectile projectile(250, 5, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile1.png").resource), false, 0, "Arrow");
+	Tower tower3(2, 2, 9.f, 125.f, 0.9f, 75, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower3.png").resource), "Tower Arcane", projectileSpawner);
+	tower3.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
+	towerSpawner.AddType(tower3);
+
+	Projectile projectile(250, 5, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile1.png").resource), false, 0, 0, 0.f, "Arrow", projectileSpawner);
 	projectile.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	projectileSpawner.AddType(projectile);
 
-	Projectile projectile2(150, 2, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile2.png").resource), true, 115.f, "Bomb");
-	projectile.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
+	Projectile projectile2(150, 2, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile2.png").resource), true, 115.f, 0, 0.f, "Bomb", projectileSpawner);
+	projectile2.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	projectileSpawner.AddType(projectile2);
+
+	Projectile projectile3(200, 2, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile3.png").resource), false, 0.f, 2, 125.f, "Blast", projectileSpawner);
+	projectile3.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
+	projectileSpawner.AddType(projectile3);
 }
 
 void GameState::DestroyTypes()

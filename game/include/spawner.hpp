@@ -11,11 +11,11 @@ public:
 	std::vector<T> types;
 	std::vector<T*> instances;
 
-	Spawner::Spawner()
+	Spawner()
 	{
 	}
 
-	Spawner::~Spawner()
+	~Spawner()
 	{
 		while (instances.size() > 0)
 		{
@@ -23,12 +23,12 @@ public:
 		}
 	}
 
-	void Spawner::AddType(T type)
+	void AddType(T type)
 	{
 		types.push_back(type);
 	}
 
-	T* Spawner::Spawn(int typeID)
+	T* Spawn(int typeID)
 	{
 		if (typeID < types.size())
 		{
@@ -42,7 +42,7 @@ public:
 		return nullptr;
 	}
 
-	void Spawner::DespawnBack()
+	void DespawnBack()
 	{
 		if (instances.size() > 0)
 		{
@@ -80,6 +80,31 @@ public:
 		}
 
 		return withinArea;
+	}
+
+	T* ClosestInArea(sf::Vector2f center, float radius, std::vector<T*> exclusionVec)
+	{
+		T* closest = nullptr;
+		float maxDistance = 99999;
+
+		for (auto it = instances.begin(); it != instances.end(); ++it)
+		{
+			auto type = (*it);
+
+			if (std::find(exclusionVec.begin(), exclusionVec.end(), type) != exclusionVec.end())
+				continue;
+
+			auto vec = type->node.GetPosition() - center;
+
+			float distance = Magnitude(vec);
+			if (distance < maxDistance)
+			{
+				closest = type;
+				maxDistance = distance;
+			}
+		}
+
+		return closest;
 	}
 };
 

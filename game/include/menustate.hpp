@@ -2,22 +2,33 @@
 
 #include <state.hpp>
 #include <statemachine.hpp>
+#include <functional>
+#include <button.hpp>
+#include <spawner.hpp>
+#include <assetdatabase.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 class GameState;
 
 class MenuState : public State
 {
 public:
-	MenuState(StateMachine& stateMachine, GameState* gameState);
+	MenuState(StateMachine& stateMachine, AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow);
 	virtual void Initialise() override;
 	virtual void Shutdown() override;
 	virtual void Update() override;
 	virtual void Render() override;
 	virtual void ProcessInput(sf::Event currentEvent) override;
 
-private:
 	GameState* gameState;
+private:
+	bool levelSet;
+	void ButtonClicked();
+	AssetDatabase& assetDatabase;
 	StateMachine& stateMachine;
+	sf::RenderWindow& renderWindow;
+
+	Spawner<Button> buttonSpawner;
 };
 
 #endif // !MENUSTATE_HPP

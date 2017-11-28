@@ -25,13 +25,13 @@ public:
 	float fireRate;
 	int cost;
 
-	void Update(std::vector<Enemy*>& allEnemies);
+	void Update(Spawner<Enemy>& enemySpawner);
 	sf::VertexArray GetDebugLines();
 	Node node;
 	Spawner<Projectile>& projectileSpawner;
 private:
-	void RemoveDeadTargets(std::vector<Enemy*>& allEnemies);
-	void FindTarget(std::vector<Enemy*>& allEnemies);
+	void RemoveDeadTargets(Spawner<Enemy>& enemySpawner);
+	void FindTarget(Spawner<Enemy>& enemySpawner);
 	void Shoot();
 	std::vector<Enemy*> targets;
 

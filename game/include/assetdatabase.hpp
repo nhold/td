@@ -20,6 +20,8 @@ public:
 
 	}
 
+	operator const T&() { return resource; }
+
 	T resource;
 	bool isValid;
 };

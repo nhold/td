@@ -37,7 +37,7 @@ Tower::~Tower()
 {
 }
 
-void Tower::Update(std::vector<Enemy*>& allEnemies)
+void Tower::Update(Spawner<Enemy>& enemySpawner)
 {
 	if (isBuilding)
 	{
@@ -52,11 +52,11 @@ void Tower::Update(std::vector<Enemy*>& allEnemies)
 		}
 	}
 
-	RemoveDeadTargets(allEnemies);
+	RemoveDeadTargets(enemySpawner);
 
 	if (targets.size() < numberOfTargets)
 	{
-		FindTarget(allEnemies);
+		FindTarget(enemySpawner);
 	}
 
 	if (targets.size() > 0)
@@ -82,13 +82,13 @@ sf::VertexArray Tower::GetDebugLines()
 	return vertexArray;
 }
 
-void Tower::RemoveDeadTargets(std::vector<Enemy*>& allEnemies)
+void Tower::RemoveDeadTargets(Spawner<Enemy>& enemySpawner)
 {
 	std::vector<Enemy*> removeVec;
 	for each (auto enemy in targets)
 	{
-		auto it = std::find(allEnemies.begin(), allEnemies.end(), enemy);
-		if (it == allEnemies.end())
+		auto it = std::find(enemySpawner.instances.begin(), enemySpawner.instances.end(), enemy);
+		if (it == enemySpawner.instances.end())
 		{
 			removeVec.push_back(enemy);
 		}
@@ -114,7 +114,7 @@ void Tower::RemoveDeadTargets(std::vector<Enemy*>& allEnemies)
 
 }
 
-void Tower::FindTarget(std::vector<Enemy*>& allEnemies)
+void Tower::FindTarget(Spawner<Enemy>& enemiesSpawner)
 {
 	if (targets.size() >= numberOfTargets)
 		return;
@@ -122,7 +122,7 @@ void Tower::FindTarget(std::vector<Enemy*>& allEnemies)
 	float distance = 99999;
 	Enemy* newTarget = nullptr;
 
-	for (auto it = allEnemies.begin(); it != allEnemies.end(); ++it)
+	for (auto it = enemiesSpawner.instances.begin(); it != enemiesSpawner.instances.end(); ++it)
 	{
 		auto enemy = (*it);
 		auto vec = enemy->node.GetSprite()->getPosition() - node.GetSprite()->getPosition();

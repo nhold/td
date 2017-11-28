@@ -7,10 +7,11 @@
 
 Td::Td() : Game(640, 640, "TD")
 {
-	// Maybe the statemachine is told the relationship.
+	// TODO: Maybe the statemachine is told the relationship.
 	gameState = new GameState(stateMachine, assetDatabase, window);
-	menuState = new MenuState(stateMachine, gameState);
+	menuState = new MenuState(stateMachine, assetDatabase, window);
 	gameState->menuState = menuState;
+	menuState->gameState = gameState;
 }
 
 Td::~Td()
@@ -19,9 +20,7 @@ Td::~Td()
 
 void Td::Initialise()
 {
-	//gameState.SetLevel("assets/level1_metadata.txt");
 	stateMachine.SetState(menuState);
-	//gameState.Initialise();
 }
 
 void Td::Update()

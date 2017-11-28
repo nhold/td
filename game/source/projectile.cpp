@@ -6,15 +6,15 @@
 #include <enemy.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
-Projectile::Projectile()
+/*Projectile::Projectile() : projectileSpawner()
 {
 	movementSpeed = 1;
 	damage = 1;
 	enemy = nullptr;
 	cacheEnemyPosition = false;
-}
+}*/
 
-Projectile::Projectile(int movementSpeed, int damage, sf::Sprite* sprite, bool cacheEnemyPosition, float radius, std::string name)
+Projectile::Projectile(int movementSpeed, int damage, sf::Sprite* sprite, bool cacheEnemyPosition, float radius, int bounceCount,float bounceRadius, std::string name, Spawner<Projectile>& projectileSpawner) : projectileSpawner(projectileSpawner)
 {
 	node.SetSprite(sprite);
 	node.SetName(name);
@@ -24,14 +24,18 @@ Projectile::Projectile(int movementSpeed, int damage, sf::Sprite* sprite, bool c
 	this->damage = damage;
 	this->cacheEnemyPosition = cacheEnemyPosition;
 	this->radius = radius;
+	this->bounceCount = bounceCount;
+	bounced = false;
 }
 
-Projectile::Projectile(const Projectile& otherProjectile) : node(otherProjectile.node)
+Projectile::Projectile(const Projectile& otherProjectile) : node(otherProjectile.node), projectileSpawner(otherProjectile.projectileSpawner)
 {
 	movementSpeed = otherProjectile.movementSpeed;
 	damage = otherProjectile.damage;
 	this->cacheEnemyPosition = otherProjectile.cacheEnemyPosition;
 	this->radius = otherProjectile.radius;
+	this->bounceCount = otherProjectile.bounceCount;
+	bounced = false;
 	node.SetOrigin(0.5f, 0.5f);
 }
 
@@ -42,7 +46,7 @@ Projectile::~Projectile()
 
 void Projectile::Update(Spawner<Enemy>& enemySpawner)
 {
-	if (enemy == nullptr)
+	if (enemy == nullptr || !node.isAlive)
 		return;
 
 	// If we are following the enemy and it goes away we should kill ourselves
@@ -60,6 +64,7 @@ void Projectile::Update(Spawner<Enemy>& enemySpawner)
 	else
 	{
 		node.isAlive = false;
+
 		if (!cacheEnemyPosition)
 		{
 			enemy->currentHealth -= damage;
@@ -77,6 +82,14 @@ void Projectile::Update(Spawner<Enemy>& enemySpawner)
 	
 }
 
+void Projectile::PostUpdate(Spawner<Enemy>& enemySpawner)
+{
+	if (bounceCount > 0 && node.isAlive == false)
+	{
+		Bounce(enemySpawner);
+	}
+}
+
 void Projectile::SetEnemy(Enemy* enemy)
 {
 	this->enemy = enemy;
@@ -86,11 +99,41 @@ void Projectile::SetEnemy(Enemy* enemy)
 	}
 }
 
+void Projectile::SetBounceCount(int bounceCount)
+{
+	this->bounceCount = bounceCount;
+}
+
+void Projectile::Bounce(Spawner<Enemy>& enemySpawner)
+{
+	// Can only bounce to enemy
+	if (enemy != nullptr && !bounced)
+	{
+		bounced = true;
+		std::cout << "bounceCount: " << bounceCount << std::endl;
+		bounceCount--;
+		auto projectile = projectileSpawner.Spawn(2);
+		projectile->node.SetPosition(node.GetPosition());
+		std::vector<Enemy*> currentEnemy;
+
+		currentEnemy.push_back(enemy);
+		Enemy* newTarget = enemySpawner.ClosestInArea(node.GetPosition(), 10.f, currentEnemy);
+
+		if (newTarget != nullptr && newTarget->node.isAlive)
+		{
+			projectile->SetEnemy(newTarget);
+			projectile->SetBounceCount(bounceCount);
+		}
+		else {
+			node.isAlive = false;
+		}
+	}
+}
+
 
 bool Projectile::AtTarget(sf::Vector2f otherPosition)
 {
 	sf::Vector2f direction = otherPosition - node.GetPosition();
-	//sf::Vector2f direction = enemy->node.GetPosition() - node.GetPosition();
 
 	if (Magnitude(direction) <= movementSpeed * Game::deltaTime)
 	{
