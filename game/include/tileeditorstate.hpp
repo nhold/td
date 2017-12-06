@@ -15,7 +15,7 @@ namespace sf {
 	class Sprite;
 }
 
-class GameState;
+class MenuState;
 
 class TileEditorState : public State
 {
@@ -27,6 +27,7 @@ public:
 	virtual void Render() override;
 	virtual void ProcessInput(sf::Event currentEvent) override;
 
+	MenuState* menuState;
 private:
 	TileMap tileMap;
 

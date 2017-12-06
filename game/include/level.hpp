@@ -33,7 +33,7 @@ public:
 	std::vector<Wave> waves;
 	int startingGold;
 	std::string name;
-	
+	void Clear();
 private:
 	AssetDatabase& assetDatabase;
 

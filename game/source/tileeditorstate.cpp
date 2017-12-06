@@ -1,6 +1,7 @@
 #include <tileeditorstate.hpp>
 
 #include <assethelper.hpp>
+#include <menustate.hpp>
 #include <game.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
@@ -67,6 +68,7 @@ void TileEditorState::ProcessInput(sf::Event currentEvent)
 		if (currentEvent.key.code == sf::Keyboard::Num3)
 		{
 			currentSelectedTile = 2;
+
 			currentTile = tileMap.tileTypes[currentSelectedTile];
 		}
 	}
@@ -76,6 +78,11 @@ void TileEditorState::ProcessInput(sf::Event currentEvent)
 		if (currentEvent.key.code == sf::Keyboard::S)
 		{
 			tileMap.SaveToFile("assets/temporary.txt");
+		}
+
+		if (currentEvent.key.code == sf::Keyboard::Escape)
+		{
+			stateMachine.SetState(menuState);
 		}
 	}
 }

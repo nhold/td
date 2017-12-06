@@ -16,7 +16,7 @@ Td::Td() : Game(640, 640, "TD")
 	gameState->menuState = menuState;
 	menuState->gameState = gameState;
 	menuState->tileEditState = tileEditState;
-	
+	tileEditState->menuState = menuState;
 }
 
 Td::~Td()
@@ -33,7 +33,6 @@ void Td::Update()
 	Game::Update();
 	stateMachine.currentState->Update();
 }
-
 
 void Td::Render()
 {

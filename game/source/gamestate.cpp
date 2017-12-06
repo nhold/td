@@ -55,7 +55,8 @@ void GameState::Shutdown()
 	towerSpawner.DespawnAll();
 	projectileSpawner.DespawnAll();
 	DestroyTypes();
-	currentLevel.buildingMap.Clear();
+	
+	currentLevel.Clear();
 }
 
 void GameState::Update()
@@ -67,7 +68,9 @@ void GameState::Update()
 	{
 		auto grid = Game::WorldToArray(mousePosition);
 
-		if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 || currentLevel.buildingMap.isBlocked[grid.x][grid.y])
+		if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
+			currentLevel.tileMap.tiles[grid.x][grid.y] == 2 ||
+			currentLevel.buildingMap.isBlocked[grid.x][grid.y])
 		{
 			cursor.setColor(sf::Color::Red);
 		}
@@ -334,7 +337,7 @@ void GameState::CreateTypes()
 	projectile2.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	projectileSpawner.AddType(projectile2);
 
-	Projectile projectile3(200, 2, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile3.png").resource), false, 0.f, 50, 125.f, "Blast", projectileSpawner);
+	Projectile projectile3(200, 2, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/projectile3.png").resource), false, 0.f, 4, 125.f, "Blast", projectileSpawner);
 	projectile3.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	projectileSpawner.AddType(projectile3);
 }

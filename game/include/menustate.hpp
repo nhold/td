@@ -31,7 +31,9 @@ public:
 private:
 	bool levelSet;
 	bool levelEditSet;
-	void PlayButtonClicked();
+	void PlayButtonClicked1();
+	void PlayButtonClicked2();
+	void PlayButtonClicked3();
 	void LevelEditorButtonClicked();
 	AssetDatabase& assetDatabase;
 	StateMachine& stateMachine;

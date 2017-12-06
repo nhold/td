@@ -82,3 +82,9 @@ bool Level::isValid()
 {
 	return (base != nullptr);
 }
+
+void Level::Clear()
+{
+	buildingMap.Clear();
+	waves.clear();
+}

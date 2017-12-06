@@ -1,0 +1,6 @@
+name:Second Level
+tilemap:assets/level3_tilemap.txt
+startinggold:300
+wavedata:assets/level3_wavedata.txt
+wavedata:assets/level3_wavedata2.txt
+end:end
