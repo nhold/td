@@ -1,6 +1,7 @@
 #include <menustate.hpp>
 #include <gamestate.hpp>
 #include <iostream>
+#include <tileeditorstate.hpp>
 
 MenuState::MenuState(StateMachine& stateMachine, AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow) : stateMachine(stateMachine),
 																												assetDatabase(assetDatabase),
@@ -15,9 +16,17 @@ void MenuState::Initialise()
 		std::cout << "Button clicked" << std::endl;
 	}));
 
-	auto button = buttonSpawner.Spawn(0);
-	button->Listen(std::bind(&MenuState::ButtonClicked, this));
+	auto playButton = buttonSpawner.Spawn(0);
+	playButton->Listen(std::bind(&MenuState::PlayButtonClicked, this));
+	playButton->node.SetPosition(320, 320);
+
+	auto tileEditButton = buttonSpawner.Spawn(0);
+	tileEditButton->Listen(std::bind(&MenuState::LevelEditorButtonClicked, this));
+	tileEditButton->node.SetPosition(320, 400);
+
+	background = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/menuBackground.png"));
 	levelSet = false;
+	levelEditSet = false;
 }
 
 void MenuState::Shutdown()
@@ -32,17 +41,21 @@ void MenuState::Update()
 		for each (auto button in buttonSpawner.instances)
 		{
 			button->Update(static_cast<sf::Vector2f>(sf::Mouse::getPosition(renderWindow)));
-			if (levelSet)
+			if (levelSet || levelEditSet)
 				break;
 		}
 	}
 
 	if(levelSet)
 		stateMachine.SetState(gameState);
+
+	if (levelEditSet)
+		stateMachine.SetState(tileEditState);
 }
 
 void MenuState::Render()
 {
+	renderWindow.draw(*background);
 	for each (auto button in buttonSpawner.instances)
 	{
 		renderWindow.draw(*button->node.GetSprite());
@@ -62,8 +75,13 @@ void MenuState::ProcessInput(sf::Event currentEvent)
 	}
 }
 
-void MenuState::ButtonClicked()
+void MenuState::PlayButtonClicked()
 {
 	gameState->SetLevel("assets/level1_metadata.txt");
 	levelSet = true;
+}
+
+void MenuState::LevelEditorButtonClicked()
+{
+	levelEditSet = true;
 }

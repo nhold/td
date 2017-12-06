@@ -22,6 +22,7 @@ public:
 	Node node;
 
 	void Update(sf::Vector2f mousePosition);
+
 private:
 	std::function<void()> onClicked;
 

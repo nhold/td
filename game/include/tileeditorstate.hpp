@@ -1,5 +1,5 @@
-#ifndef MENUSTATE_HPP
-#define MENUSTATE_HPP
+#ifndef TILEEDITORSTATE_HPP
+#define TILEDEDITORSTATE_HPP
 
 #include <state.hpp>
 #include <statemachine.hpp>
@@ -8,37 +8,35 @@
 #include <spawner.hpp>
 #include <assetdatabase.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <tilemap.hpp>
 
-class GameState;
-class TileEditorState;
 
 namespace sf {
 	class Sprite;
 }
 
-class MenuState : public State
+class GameState;
+
+class TileEditorState : public State
 {
 public:
-	MenuState(StateMachine& stateMachine, AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow);
+	TileEditorState(StateMachine& stateMachine, AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow);
 	virtual void Initialise() override;
 	virtual void Shutdown() override;
 	virtual void Update() override;
 	virtual void Render() override;
 	virtual void ProcessInput(sf::Event currentEvent) override;
 
-	GameState* gameState;
-	TileEditorState* tileEditState;
 private:
-	bool levelSet;
-	bool levelEditSet;
-	void PlayButtonClicked();
-	void LevelEditorButtonClicked();
+	TileMap tileMap;
+
+	int currentSelectedTile;
 	AssetDatabase& assetDatabase;
 	StateMachine& stateMachine;
 	sf::RenderWindow& renderWindow;
-	sf::Sprite* background;
+	sf::Sprite* currentTile;
 	Spawner<Button> buttonSpawner;
 };
 
-#endif // !MENUSTATE_HPP
+#endif // !TILEEDITORSTATE_HPP
 

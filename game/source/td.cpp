@@ -4,14 +4,19 @@
 #include <base.hpp>
 #include <gamestate.hpp>
 #include <menustate.hpp>
+#include <tileeditorstate.hpp>
 
 Td::Td() : Game(640, 640, "TD")
 {
 	// TODO: Maybe the statemachine is told the relationship.
 	gameState = new GameState(stateMachine, assetDatabase, window);
 	menuState = new MenuState(stateMachine, assetDatabase, window);
+	tileEditState = new TileEditorState(stateMachine, assetDatabase, window);
+
 	gameState->menuState = menuState;
 	menuState->gameState = gameState;
+	menuState->tileEditState = tileEditState;
+	
 }
 
 Td::~Td()

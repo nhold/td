@@ -10,6 +10,7 @@
 
 class GameState;
 class MenuState;
+class TileEditorState;
 
 class Td : public Game
 {
@@ -26,6 +27,7 @@ protected:
 private:
 	GameState* gameState;
 	MenuState* menuState;
+	TileEditorState* tileEditState;
 	StateMachine stateMachine;
 
 };
