@@ -10,6 +10,8 @@
 #include <SFML/Graphics/CircleShape.hpp>
 
 #include <random>
+#include <thread>
+#include <mutex>
 
 class MenuState;
 
@@ -29,12 +31,12 @@ public:
 
 	MenuState* menuState;
 private:
-	
+	bool running;
 	Level currentLevel;
 	StateMachine& stateMachine;
 	sf::CircleShape towerRadius;
 	sf::RenderWindow& renderWindow;
-
+	std::thread* updateThread;
 	Spawner<Enemy> enemySpawner;
 	Spawner<Tower> towerSpawner;
 	Spawner<Projectile> projectileSpawner;

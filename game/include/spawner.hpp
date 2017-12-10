@@ -2,6 +2,7 @@
 #define SPAWNER_HPP
 
 #include <vector>
+#include <mutex>
 
 // TODO: More like a pool?
 template<typename T>
@@ -10,6 +11,7 @@ class Spawner
 public:
 	std::vector<T> types;
 	std::vector<T*> instances;
+	std::mutex mutex;
 
 	Spawner()
 	{

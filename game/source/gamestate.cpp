@@ -8,6 +8,8 @@
 #include <assethelper.hpp>
 #include <menustate.hpp>
 
+#include <chrono>
+
 GameState::GameState(StateMachine& stateMachine, AssetDatabase& assetDatabase, sf::RenderWindow& renderWindow) : assetDatabase(assetDatabase), 
 	renderWindow(renderWindow), 
 	distribution(0, 1), 
@@ -31,6 +33,7 @@ void GameState::Initialise()
 		return;
 	}
 
+	running = true;
 	currentSelectedTower = 0;
 	CreateTypes();
 
@@ -47,10 +50,14 @@ void GameState::Initialise()
 	towerRadius.setFillColor(sf::Color::Transparent);
 	towerRadius.setOutlineColor(sf::Color::Black);
 	towerRadius.setOutlineThickness(2.f);
+	updateThread = new std::thread(std::bind(&GameState::Update, this));
 }
 
 void GameState::Shutdown()
 {
+	running = false;
+	updateThread->join();
+
 	enemySpawner.DespawnAll();
 	towerSpawner.DespawnAll();
 	projectileSpawner.DespawnAll();
@@ -61,73 +68,80 @@ void GameState::Shutdown()
 
 void GameState::Update()
 {
-	auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(renderWindow));
-	auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow)));
-
-	if (mousePosition.x >= 0 && mousePosition.y >= 0 && mousePosition.x <= 640 && mousePosition.y <= 640)
+	while (running)
 	{
-		auto grid = Game::WorldToArray(mousePosition);
+		auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(renderWindow));
+		auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow)));
 
-		if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
-			currentLevel.tileMap.tiles[grid.x][grid.y] == 2 ||
-			currentLevel.buildingMap.isBlocked[grid.x][grid.y])
+		if (mousePosition.x >= 0 && mousePosition.y >= 0 && mousePosition.x <= 640 && mousePosition.y <= 640)
 		{
-			cursor.setColor(sf::Color::Red);
-		}
-		else
-		{
-			cursor.setColor(sf::Color::Black);
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			auto grid = Game::WorldToArray(mousePosition);
+
+			if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
+				currentLevel.tileMap.tiles[grid.x][grid.y] == 2 ||
+				currentLevel.buildingMap.isBlocked[grid.x][grid.y])
 			{
-				if (towerSpawner.types[currentSelectedTower].cost <= currentGold)
+				cursor.setColor(sf::Color::Red);
+			}
+			else
+			{
+				cursor.setColor(sf::Color::Black);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 				{
-					currentLevel.buildingMap.isBlocked[grid.x][grid.y] = true;
-					Tower* tower = towerSpawner.Spawn(currentSelectedTower);
-					tower->isBuilding = true;
-					tower->node.SetPosition(worldGridMousePosition);
+					towerSpawner.mutex.lock();
+					if (towerSpawner.types[currentSelectedTower].cost <= currentGold)
+					{
+						currentLevel.buildingMap.isBlocked[grid.x][grid.y] = true;
+						Tower* tower = towerSpawner.Spawn(currentSelectedTower);
+						tower->isBuilding = true;
+						tower->node.SetPosition(worldGridMousePosition);
 
-					currentGold -= towerSpawner.types[currentSelectedTower].cost;
-				}
-				else
-				{
-					cursor.setColor(sf::Color::Blue);
+						currentGold -= towerSpawner.types[currentSelectedTower].cost;
+					}
+					else
+					{
+						cursor.setColor(sf::Color::Blue);
+					}
+					towerSpawner.mutex.unlock();
 				}
 			}
+
+			cursor.setPosition(Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow))));
+			towerRadius.setPosition(worldGridMousePosition);
 		}
 
-		cursor.setPosition(Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow))));
-		towerRadius.setPosition(worldGridMousePosition);
-	}
+		int displayCurrentWave = std::min(currentWave + 1, (int)currentLevel.waves.size());
+		int displayCurrentData = std::min(currentData + 1, (int)currentLevel.waves[displayCurrentWave - 1].enemySpawnData.size());
+		goldText.setString("Gold: " + std::to_string(currentGold) +
+			"\n" + "Health: " + std::to_string(currentLevel.base->health) +
+			"\n" + "Wave: " + std::to_string(displayCurrentWave) + "/" + std::to_string(currentLevel.waves.size()) +
+			"\n" + "Enemies: " + std::to_string(displayCurrentData) + "/" + std::to_string(currentLevel.waves[displayCurrentWave - 1].enemySpawnData.size()) +
+			"\n" + "Next Enemy: " + std::to_string(time));
 
-	int displayCurrentWave = std::min(currentWave + 1, (int)currentLevel.waves.size());
-	int displayCurrentData = std::min(currentData + 1, (int)currentLevel.waves[displayCurrentWave-1].enemySpawnData.size());
-	goldText.setString("Gold: " + std::to_string(currentGold) + 
-		"\n" + "Health: " + std::to_string(currentLevel.base->health) + 
-		"\n" + "Wave: " + std::to_string(displayCurrentWave) + "/" + std::to_string(currentLevel.waves.size()) +
-		"\n" + "Enemies: " + std::to_string(displayCurrentData) + "/" + std::to_string(currentLevel.waves[displayCurrentWave-1].enemySpawnData.size()) + 
-		"\n" + "Next Enemy: " + std::to_string(time));
+		PostUpdate();
 
-	PostUpdate();
+		UpdateWave();
+		UpdateEnemies();
+		currentLevel.base->Update(enemySpawner.instances);
+		UpdateTowers();
 
-	UpdateWave();
-	UpdateEnemies();
-	currentLevel.base->Update(enemySpawner.instances);
-	UpdateTowers();
-
-	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
-	{
-		auto projectile = (*it);
-		projectile->Update(enemySpawner);
-
-		if (!projectile->node.isAlive)
+		projectileSpawner.mutex.lock();
+		for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
 		{
-			deadProjectileVector.push_back(projectile);
-		}
-	}
+			auto projectile = (*it);
+			projectile->Update(enemySpawner);
 
-	if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size())
-	{
-		stateMachine.SetState(menuState);
+			if (!projectile->node.isAlive)
+			{
+				deadProjectileVector.push_back(projectile);
+			}
+		}
+		projectileSpawner.mutex.unlock();
+
+		if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size())
+		{
+			stateMachine.SetState(menuState);
+		}
 	}
 }
 
@@ -135,21 +149,27 @@ void GameState::Render()
 {
 	currentLevel.Render(renderWindow);
 
+	towerSpawner.mutex.lock();
 	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
 	{
 		renderWindow.draw(*(*it)->node.GetSprite());
 	}
+	towerSpawner.mutex.unlock();
 
+	enemySpawner.mutex.lock();
 	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
 	{
 		renderWindow.draw(*(*it)->node.GetSprite());
 		(*it)->RenderHealthbars(renderWindow);
 	}
+	enemySpawner.mutex.unlock();
 
+	projectileSpawner.mutex.lock();
 	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
 	{
 		renderWindow.draw(*(*it)->node.GetSprite());
 	}
+	projectileSpawner.mutex.unlock();
 
 
 	renderWindow.draw(cursor);
@@ -169,7 +189,9 @@ void GameState::ProcessInput(sf::Event currentEvent)
 
 		if (currentEvent.key.code == sf::Keyboard::Space)
 		{
+			enemySpawner.mutex.lock();
 			enemySpawner.Spawn(2);
+			enemySpawner.mutex.unlock();
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::D)
@@ -225,14 +247,17 @@ void GameState::SetLevel(std::string levelFileName)
 
 void GameState::UpdateTowers()
 {
+	towerSpawner.mutex.lock();
 	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
 	{
 		(*it)->Update(enemySpawner);
 	}
+	towerSpawner.mutex.unlock();
 }
 
 void GameState::UpdateEnemies()
 {
+	enemySpawner.mutex.lock();
 	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
 	{
 		auto enemy = (*it);
@@ -243,12 +268,15 @@ void GameState::UpdateEnemies()
 			deadEnemyVector.push_back(enemy);
 		}
 	}
+	enemySpawner.mutex.unlock();
 }
 
 void GameState::PostUpdate()
 {
+
 	for (auto it = deadEnemyVector.begin(); it != deadEnemyVector.end(); ++it)
 	{
+		enemySpawner.mutex.lock();
 		auto killIt = std::find(enemySpawner.instances.begin(), enemySpawner.instances.end(), (*it));
 
 		if (killIt != enemySpawner.instances.end())
@@ -257,11 +285,13 @@ void GameState::PostUpdate()
 			enemySpawner.instances.erase(killIt);
 			delete (*it);
 		}
+		enemySpawner.mutex.unlock();
 	}
 
 
 	for (auto it = deadProjectileVector.begin(); it != deadProjectileVector.end(); ++it)
 	{
+		projectileSpawner.mutex.lock();
 		auto killIt = std::find(projectileSpawner.instances.begin(), projectileSpawner.instances.end(), (*it));
 
 		if (killIt != projectileSpawner.instances.end())
@@ -269,6 +299,7 @@ void GameState::PostUpdate()
 			projectileSpawner.instances.erase(killIt);
 			delete (*it);
 		}
+		projectileSpawner.mutex.unlock();
 	}
 
 	deadProjectileVector.clear();
@@ -284,9 +315,11 @@ void GameState::UpdateWave()
 		{
 			if (currentData < currentLevel.waves[currentWave].enemySpawnData.size())
 			{
+				enemySpawner.mutex.lock();
 				time = currentLevel.waves[currentWave].enemySpawnData[currentData].spawnTime;
 				enemySpawner.Spawn(currentLevel.waves[currentWave].enemySpawnData[currentData].type);
 				currentData++;
+				enemySpawner.mutex.unlock();
 			}
 			else
 			{

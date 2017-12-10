@@ -31,7 +31,7 @@ void Td::Initialise()
 void Td::Update()
 {
 	Game::Update();
-	stateMachine.currentState->Update();
+	//stateMachine.currentState->Update();
 }
 
 void Td::Render()
