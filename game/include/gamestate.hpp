@@ -24,6 +24,7 @@ public:
 	virtual void Initialise() override;
 	virtual void Shutdown() override;
 	virtual void Update() override;
+	void MultithreadedUpdate();
 	virtual void Render() override;
 	virtual void ProcessInput(sf::Event currentEvent) override;
 

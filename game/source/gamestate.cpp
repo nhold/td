@@ -50,7 +50,7 @@ void GameState::Initialise()
 	towerRadius.setFillColor(sf::Color::Transparent);
 	towerRadius.setOutlineColor(sf::Color::Black);
 	towerRadius.setOutlineThickness(2.f);
-	updateThread = new std::thread(std::bind(&GameState::Update, this));
+	updateThread = new std::thread(std::bind(&GameState::MultithreadedUpdate, this));
 }
 
 void GameState::Shutdown()
@@ -66,7 +66,7 @@ void GameState::Shutdown()
 	currentLevel.Clear();
 }
 
-void GameState::Update()
+void GameState::MultithreadedUpdate()
 {
 	while (running)
 	{
@@ -143,6 +143,83 @@ void GameState::Update()
 			stateMachine.SetState(menuState);
 		}
 	}
+}
+
+void GameState::Update()
+{
+	/*auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(renderWindow));
+	auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow)));
+
+	if (mousePosition.x >= 0 && mousePosition.y >= 0 && mousePosition.x <= 640 && mousePosition.y <= 640)
+	{
+		auto grid = Game::WorldToArray(mousePosition);
+
+		if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
+			currentLevel.tileMap.tiles[grid.x][grid.y] == 2 ||
+			currentLevel.buildingMap.isBlocked[grid.x][grid.y])
+		{
+			cursor.setColor(sf::Color::Red);
+		}
+		else
+		{
+			cursor.setColor(sf::Color::Black);
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			{
+				towerSpawner.mutex.lock();
+				if (towerSpawner.types[currentSelectedTower].cost <= currentGold)
+				{
+					currentLevel.buildingMap.isBlocked[grid.x][grid.y] = true;
+					Tower* tower = towerSpawner.Spawn(currentSelectedTower);
+					tower->isBuilding = true;
+					tower->node.SetPosition(worldGridMousePosition);
+
+					currentGold -= towerSpawner.types[currentSelectedTower].cost;
+				}
+				else
+				{
+					cursor.setColor(sf::Color::Blue);
+				}
+				towerSpawner.mutex.unlock();
+			}
+		}
+
+		cursor.setPosition(Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow))));
+		towerRadius.setPosition(worldGridMousePosition);
+	}
+
+	int displayCurrentWave = std::min(currentWave + 1, (int)currentLevel.waves.size());
+	int displayCurrentData = std::min(currentData + 1, (int)currentLevel.waves[displayCurrentWave - 1].enemySpawnData.size());
+	goldText.setString("Gold: " + std::to_string(currentGold) +
+		"\n" + "Health: " + std::to_string(currentLevel.base->health) +
+		"\n" + "Wave: " + std::to_string(displayCurrentWave) + "/" + std::to_string(currentLevel.waves.size()) +
+		"\n" + "Enemies: " + std::to_string(displayCurrentData) + "/" + std::to_string(currentLevel.waves[displayCurrentWave - 1].enemySpawnData.size()) +
+		"\n" + "Next Enemy: " + std::to_string(time));
+
+	PostUpdate();
+
+	UpdateWave();
+	UpdateEnemies();
+	currentLevel.base->Update(enemySpawner.instances);
+	UpdateTowers();
+
+	projectileSpawner.mutex.lock();
+	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
+	{
+		auto projectile = (*it);
+		projectile->Update(enemySpawner);
+
+		if (!projectile->node.isAlive)
+		{
+			deadProjectileVector.push_back(projectile);
+		}
+	}
+	projectileSpawner.mutex.unlock();
+
+	if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size())
+	{
+		stateMachine.SetState(menuState);
+	}*/
+	
 }
 
 void GameState::Render()
