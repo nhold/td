@@ -62,7 +62,7 @@ void Enemy::SetPath(Path* path)
 	currentNode = 0;
 }
 
-void Enemy::Update()
+void Enemy::Update(float deltaTime)
 {
 	if (currentHealth <= 0)
 	{
@@ -74,9 +74,9 @@ void Enemy::Update()
 
 	if (currentNode < nodePoints.size())
 	{
-		MoveToCurrentNode();
+		MoveToCurrentNode(deltaTime);
 
-		if (AtCurrentNode())
+		if (AtCurrentNode(deltaTime))
 			currentNode++;
 	}
 	else 
@@ -95,13 +95,13 @@ void Enemy::RenderHealthbars(sf::RenderWindow & window)
 	window.draw(*healthBarSprite);
 }
 
-bool Enemy::AtCurrentNode()
+bool Enemy::AtCurrentNode(float deltaTime)
 {
 	sf::Vector2f worldPosition;
 	worldPosition = Game::GridToWorld(nodePoints[currentNode]);
 	sf::Vector2f direction = worldPosition - node.GetSprite()->getPosition();
 
-	if (Magnitude(direction) <= movementSpeed * Game::deltaTime)
+	if (Magnitude(direction) <= movementSpeed * deltaTime)
 	{
 		return true;
 	}
@@ -109,7 +109,7 @@ bool Enemy::AtCurrentNode()
 	return false;
 }
 
-void Enemy::MoveToCurrentNode()
+void Enemy::MoveToCurrentNode(float deltaTime)
 {
 	sf::Vector2f floatVersion;
 
@@ -117,7 +117,7 @@ void Enemy::MoveToCurrentNode()
 
 	sf::Vector2f direction = currentNodeWorldPosition - node.GetPosition();
 	direction = Normalise(direction);
-	direction = Scale(direction, movementSpeed * Game::deltaTime);
+	direction = Scale(direction, movementSpeed * deltaTime);
 
 	node.SetPosition(node.GetPosition() + direction);
 }

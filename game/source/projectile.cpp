@@ -46,7 +46,7 @@ Projectile::~Projectile()
 
 }
 
-void Projectile::Update(Spawner<Enemy>& enemySpawner)
+void Projectile::Update(Spawner<Enemy>& enemySpawner, float deltaTime)
 {
 	/*if (enemy == nullptr || !node.isAlive)
 		return;*/
@@ -61,7 +61,7 @@ void Projectile::Update(Spawner<Enemy>& enemySpawner)
 
 	if (!AtTarget(GetCurrentTargetPosition()))
 	{
-		Move(GetCurrentTargetPosition());
+		Move(GetCurrentTargetPosition(), deltaTime);
 	}
 	else
 	{
@@ -138,12 +138,12 @@ sf::Vector2f Projectile::GetCurrentTargetPosition()
 }
 
 
-bool Projectile::Move(sf::Vector2f otherPosition)
+bool Projectile::Move(sf::Vector2f otherPosition, float deltaTime)
 {
 	sf::Vector2f direction = otherPosition - node.GetPosition();
 	direction = Normalise(direction);
 	node.SetDirection(direction);
-	direction = Scale(direction, movementSpeed * Game::deltaTime);
+	direction = Scale(direction, movementSpeed * deltaTime);
 
 	node.SetPosition(node.GetPosition() + direction);
 

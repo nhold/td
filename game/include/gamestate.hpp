@@ -59,9 +59,11 @@ private:
 	int currentData;
 	int currentSelectedTower;
 	float time = 0.1f;
+	float threadDeltaTime;
+	sf::Clock clock;
 	void UpdateWave();
-	void UpdateEnemies();
-	void UpdateTowers();
+	void UpdateEnemies(float deltaTime);
+	void UpdateTowers(float deltaTime);
 	void PostUpdate();
 
 	void CreateTypes();

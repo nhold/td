@@ -37,7 +37,7 @@ Tower::~Tower()
 {
 }
 
-void Tower::Update(Spawner<Enemy>& enemySpawner)
+void Tower::Update(Spawner<Enemy>& enemySpawner, float deltaTime)
 {
 	if (isBuilding)
 	{
@@ -61,13 +61,14 @@ void Tower::Update(Spawner<Enemy>& enemySpawner)
 
 	if (targets.size() > 0)
 	{
-		Shoot();
+		Shoot(deltaTime);
 	}
 }
 
 sf::VertexArray Tower::GetDebugLines()
 {
 	sf::VertexArray vertexArray(sf::Lines, 0);
+
 	for each (auto enemy in targets)
 	{
 		sf::Vertex vert;
@@ -79,6 +80,7 @@ sf::VertexArray Tower::GetDebugLines()
 		vert2.position = enemy->node.GetPosition();
 		vertexArray.append(vert2);
 	}
+
 	return vertexArray;
 }
 
@@ -149,9 +151,9 @@ void Tower::FindTarget(Spawner<Enemy>& enemiesSpawner)
 	}
 }
 
-void Tower::Shoot()
+void Tower::Shoot(float deltaTime)
 {
-	currentRate -= Game::deltaTime;
+	currentRate -= deltaTime;
 	if (currentRate <= 0)
 	{
 		currentRate = fireRate;

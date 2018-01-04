@@ -51,12 +51,13 @@ void GameState::Initialise()
 	towerRadius.setOutlineColor(sf::Color::Black);
 	towerRadius.setOutlineThickness(2.f);
 	updateThread = new std::thread(std::bind(&GameState::MultithreadedUpdate, this));
+	threadDeltaTime = 0.0f;
 }
 
 void GameState::Shutdown()
 {
 	running = false;
-	updateThread->join();
+	//updateThread->join(); - Fix this.
 
 	enemySpawner.DespawnAll();
 	towerSpawner.DespawnAll();
@@ -121,15 +122,19 @@ void GameState::MultithreadedUpdate()
 		PostUpdate();
 
 		UpdateWave();
-		UpdateEnemies();
+		UpdateEnemies(threadDeltaTime);
+
+		enemySpawner.mutex.lock();
 		currentLevel.base->Update(enemySpawner.instances);
-		UpdateTowers();
+		enemySpawner.mutex.unlock();
+
+		UpdateTowers(threadDeltaTime);
 
 		projectileSpawner.mutex.lock();
 		for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
 		{
 			auto projectile = (*it);
-			projectile->Update(enemySpawner);
+			projectile->Update(enemySpawner, threadDeltaTime);
 
 			if (!projectile->node.isAlive)
 			{
@@ -138,11 +143,15 @@ void GameState::MultithreadedUpdate()
 		}
 		projectileSpawner.mutex.unlock();
 
-		if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size())
+		if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size() || currentLevel.base->health <= 0)
 		{
-			stateMachine.SetState(menuState);
+			running = false;
 		}
+
+		threadDeltaTime = clock.restart().asSeconds();
 	}
+
+	stateMachine.SetState(menuState);
 }
 
 void GameState::Update()
@@ -260,8 +269,10 @@ void GameState::ProcessInput(sf::Event currentEvent)
 	{
 		if (currentEvent.key.code == sf::Keyboard::A)
 		{
+			enemySpawner.mutex.lock();
 			int dice_roll = distribution(generator);
 			enemySpawner.Spawn(dice_roll);
+			enemySpawner.mutex.unlock();
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::Space)
@@ -273,11 +284,15 @@ void GameState::ProcessInput(sf::Event currentEvent)
 
 		if (currentEvent.key.code == sf::Keyboard::D)
 		{
+			enemySpawner.mutex.lock();
 			enemySpawner.DespawnBack();
+			enemySpawner.mutex.unlock();
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::Escape)
 		{
+			running = false;
+			updateThread->join();
 			stateMachine.SetState(menuState);
 		}
 
@@ -322,23 +337,23 @@ void GameState::SetLevel(std::string levelFileName)
 	currentLevel.tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
 }
 
-void GameState::UpdateTowers()
+void GameState::UpdateTowers(float deltaTime)
 {
 	towerSpawner.mutex.lock();
 	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
 	{
-		(*it)->Update(enemySpawner);
+		(*it)->Update(enemySpawner, deltaTime);
 	}
 	towerSpawner.mutex.unlock();
 }
 
-void GameState::UpdateEnemies()
+void GameState::UpdateEnemies(float deltaTime)
 {
 	enemySpawner.mutex.lock();
 	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
 	{
 		auto enemy = (*it);
-		enemy->Update();
+		enemy->Update(deltaTime);
 
 		if (!enemy->node.isAlive)
 		{

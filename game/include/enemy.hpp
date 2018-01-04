@@ -28,12 +28,12 @@ public:
 
 	void SetPath(Path* path);
 
-	void Update();
+	void Update(float deltaTime);
 
 	void RenderHealthbars(sf::RenderWindow& window);
 private:
-	bool AtCurrentNode();
-	void MoveToCurrentNode();
+	bool AtCurrentNode(float deltaTime);
+	void MoveToCurrentNode(float deltaTime);
 	sf::Sprite* healthBarSprite;
 	std::vector<sf::Vector2i> nodePoints;
 	int currentNode;

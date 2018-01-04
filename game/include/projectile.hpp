@@ -26,7 +26,7 @@ public:
 
 	Node node;
 
-	void Update(Spawner<Enemy>& enemySpawner);
+	void Update(Spawner<Enemy>& enemySpawner, float deltaTime);
 
 	void SetEnemy(Enemy* enemy);
 	void SetBounceCount(int bounceCount);
@@ -37,7 +37,7 @@ private:
 	bool bounced;
 	float radius;
 	float bounceRadius;
-	bool Move(sf::Vector2f otherPosition);
+	bool Move(sf::Vector2f otherPosition, float deltaTime);
 	bool AtTarget(sf::Vector2f otherPosition);
 	sf::Vector2f GetCurrentTargetPosition();
 
