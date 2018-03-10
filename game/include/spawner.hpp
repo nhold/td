@@ -4,7 +4,6 @@
 #include <vector>
 #include <mutex>
 
-// TODO: More like a pool?
 template<typename T>
 class Spawner
 {

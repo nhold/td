@@ -53,13 +53,10 @@ private:
 class AssetDatabase
 {
 public:
-//	sf::Texture& GetTexture(std::string fileName);
-
 	ResourceHandler<sf::Texture> textureHandler;
 	ResourceHandler<sf::Font> fontHandler;
 	ResourceHandler<sf::SoundBuffer> soundBuffer;
 private:
-//	std::map<std::string, sf::Texture> textureCache;
 };
 
 #endif // !ASSETDATABASE_HPP

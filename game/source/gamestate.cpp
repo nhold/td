@@ -332,9 +332,10 @@ void GameState::SetLevel(std::string levelFileName)
 	currentWave = 0;
 	currentData = 0;
 
+	// TODO: This should be defined by some tilemap data.
 	currentLevel.tileMap.tileTypes[0] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/grass.png").resource);
 	currentLevel.tileMap.tileTypes[1] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/dirt.png").resource);
-	currentLevel.tileMap.tileTypes[2] = CreateTempSprite(sf::Color::Blue);
+	currentLevel.tileMap.tileTypes[2] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/water.png").resource);
 }
 
 void GameState::UpdateTowers(float deltaTime)

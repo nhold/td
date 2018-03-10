@@ -53,7 +53,6 @@ void Game::Run()
 		ProcessEvents();
 
 		Update();
-
 		window.clear(sf::Color::Magenta);
 		Render();
 
@@ -65,8 +64,6 @@ void Game::Run()
 		deltaTime = clock.restart().asSeconds();
 	}
 }
-
-
 
 void Game::ProcessEvents()
 {
