@@ -11,7 +11,8 @@
 #include <tilemap.hpp>
 
 
-namespace sf {
+namespace sf
+{
 	class Sprite;
 }
 
