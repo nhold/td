@@ -22,10 +22,20 @@ void Button::Invoke()
 	onClicked();
 }
 
-void Button::Update(sf::Vector2f mousePosition)
+bool Button::Update(sf::Vector2f mousePosition)
 {
-	if (node.GetSprite()->getGlobalBounds().contains(mousePosition))
+	if (IsPositionOver(mousePosition))
+	{
 		Invoke();
+		return true;
+	}
+
+	return false;
+}
+
+bool Button::IsPositionOver(sf::Vector2f position)
+{
+	return node.GetSprite()->getGlobalBounds().contains(position);
 }
 
 void Button::SetPosition(float x, float y)

@@ -24,7 +24,8 @@ public:
 
 	Node node;
 
-	void Update(sf::Vector2f mousePosition);
+	bool Update(sf::Vector2f mousePosition);
+	bool IsPositionOver(sf::Vector2f position);
 	void SetPosition(float x, float y);
 	void Render(sf::RenderWindow& renderTarget);
 
