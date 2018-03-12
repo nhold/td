@@ -4,6 +4,7 @@
 #include <level.hpp>
 #include <state.hpp>
 #include <statemachine.hpp>
+#include <button.hpp>
 
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -32,6 +33,8 @@ public:
 
 	MenuState* menuState;
 private:
+
+	void UpdateSelectedTower(int selectedTowerIndex);
 	bool running;
 	Level currentLevel;
 	StateMachine& stateMachine;
@@ -41,6 +44,7 @@ private:
 	Spawner<Enemy> enemySpawner;
 	Spawner<Tower> towerSpawner;
 	Spawner<Projectile> projectileSpawner;
+	Spawner<Button> buttonSpawner;
 
 	AssetDatabase& assetDatabase;
 

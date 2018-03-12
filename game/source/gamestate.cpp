@@ -33,6 +33,35 @@ void GameState::Initialise()
 		return;
 	}
 
+	sf::Font* buttonFont = new sf::Font(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf"));
+	sf::Sprite* towerSprite1 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower1.png"));
+	sf::Sprite* towerSprite2 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower2.png"));
+	sf::Sprite* towerSprite3 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower3.png"));
+
+	buttonSpawner.AddType(Button(towerSprite1, buttonFont, "", [] {
+		
+	}));
+
+	buttonSpawner.AddType(Button(towerSprite2, buttonFont, "", [] {
+
+	}));
+
+	buttonSpawner.AddType(Button(towerSprite3, buttonFont, "", [] {
+
+	}));
+
+	auto tower1Button = buttonSpawner.Spawn(0);
+	tower1Button->Listen(std::bind(&GameState::UpdateSelectedTower, this, 0));
+	tower1Button->node.SetPosition(16, 624);
+
+	auto tower2Button = buttonSpawner.Spawn(1);
+	tower2Button->Listen(std::bind(&GameState::UpdateSelectedTower, this, 1));
+	tower2Button->node.SetPosition(48, 624);
+
+	auto tower3Button = buttonSpawner.Spawn(2);
+	tower3Button->Listen(std::bind(&GameState::UpdateSelectedTower, this, 2));
+	tower3Button->node.SetPosition(80, 624);
+
 	running = true;
 	currentSelectedTower = 0;
 	CreateTypes();
@@ -62,9 +91,15 @@ void GameState::Shutdown()
 	enemySpawner.DespawnAll();
 	towerSpawner.DespawnAll();
 	projectileSpawner.DespawnAll();
+	buttonSpawner.DespawnAll();
 	DestroyTypes();
 	
 	currentLevel.Clear();
+}
+
+void GameState::Update()
+{
+	// Empty
 }
 
 void GameState::MultithreadedUpdate()
@@ -74,8 +109,18 @@ void GameState::MultithreadedUpdate()
 		auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(renderWindow));
 		auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow)));
 
-		if (mousePosition.x >= 0 && mousePosition.y >= 0 && mousePosition.x <= 640 && mousePosition.y <= 640)
+		if (mousePosition.x >= 0 && mousePosition.y 
+			>= 0 && mousePosition.x <= 640 && mousePosition.y <= 640)
 		{
+			bool onGui = false;
+			for each (auto but in buttonSpawner.instances)
+			{
+				onGui = but->IsPositionOver(mousePosition);
+				if (onGui)
+					break;
+			}
+
+			
 			auto grid = Game::WorldToArray(mousePosition);
 
 			if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
@@ -90,7 +135,7 @@ void GameState::MultithreadedUpdate()
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 				{
 					towerSpawner.mutex.lock();
-					if (towerSpawner.types[currentSelectedTower].cost <= currentGold)
+					if (towerSpawner.types[currentSelectedTower].cost <= currentGold && !onGui)
 					{
 						currentLevel.buildingMap.isBlocked[grid.x][grid.y] = true;
 						Tower* tower = towerSpawner.Spawn(currentSelectedTower);
@@ -107,7 +152,7 @@ void GameState::MultithreadedUpdate()
 				}
 			}
 
-			cursor.setPosition(Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow))));
+			cursor.setPosition(worldGridMousePosition);
 			towerRadius.setPosition(worldGridMousePosition);
 		}
 
@@ -154,81 +199,11 @@ void GameState::MultithreadedUpdate()
 	stateMachine.SetState(menuState);
 }
 
-void GameState::Update()
+void GameState::UpdateSelectedTower(int selectedTowerIndex)
 {
-	/*auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(renderWindow));
-	auto worldGridMousePosition = Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow)));
-
-	if (mousePosition.x >= 0 && mousePosition.y >= 0 && mousePosition.x <= 640 && mousePosition.y <= 640)
-	{
-		auto grid = Game::WorldToArray(mousePosition);
-
-		if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
-			currentLevel.tileMap.tiles[grid.x][grid.y] == 2 ||
-			currentLevel.buildingMap.isBlocked[grid.x][grid.y])
-		{
-			cursor.setColor(sf::Color::Red);
-		}
-		else
-		{
-			cursor.setColor(sf::Color::Black);
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-			{
-				towerSpawner.mutex.lock();
-				if (towerSpawner.types[currentSelectedTower].cost <= currentGold)
-				{
-					currentLevel.buildingMap.isBlocked[grid.x][grid.y] = true;
-					Tower* tower = towerSpawner.Spawn(currentSelectedTower);
-					tower->isBuilding = true;
-					tower->node.SetPosition(worldGridMousePosition);
-
-					currentGold -= towerSpawner.types[currentSelectedTower].cost;
-				}
-				else
-				{
-					cursor.setColor(sf::Color::Blue);
-				}
-				towerSpawner.mutex.unlock();
-			}
-		}
-
-		cursor.setPosition(Game::WorldToGrid(sf::Vector2f(sf::Mouse::getPosition(renderWindow))));
-		towerRadius.setPosition(worldGridMousePosition);
-	}
-
-	int displayCurrentWave = std::min(currentWave + 1, (int)currentLevel.waves.size());
-	int displayCurrentData = std::min(currentData + 1, (int)currentLevel.waves[displayCurrentWave - 1].enemySpawnData.size());
-	goldText.setString("Gold: " + std::to_string(currentGold) +
-		"\n" + "Health: " + std::to_string(currentLevel.base->health) +
-		"\n" + "Wave: " + std::to_string(displayCurrentWave) + "/" + std::to_string(currentLevel.waves.size()) +
-		"\n" + "Enemies: " + std::to_string(displayCurrentData) + "/" + std::to_string(currentLevel.waves[displayCurrentWave - 1].enemySpawnData.size()) +
-		"\n" + "Next Enemy: " + std::to_string(time));
-
-	PostUpdate();
-
-	UpdateWave();
-	UpdateEnemies();
-	currentLevel.base->Update(enemySpawner.instances);
-	UpdateTowers();
-
-	projectileSpawner.mutex.lock();
-	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
-	{
-		auto projectile = (*it);
-		projectile->Update(enemySpawner);
-
-		if (!projectile->node.isAlive)
-		{
-			deadProjectileVector.push_back(projectile);
-		}
-	}
-	projectileSpawner.mutex.unlock();
-
-	if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size())
-	{
-		stateMachine.SetState(menuState);
-	}*/
-	
+	currentSelectedTower = std::clamp(selectedTowerIndex, 0, 2);
+	towerRadius.setRadius(towerSpawner.types[currentSelectedTower].radius);
+	towerRadius.setOrigin(towerSpawner.types[currentSelectedTower].radius, towerSpawner.types[currentSelectedTower].radius);
 }
 
 void GameState::Render()
@@ -261,10 +236,26 @@ void GameState::Render()
 	renderWindow.draw(cursor);
 	renderWindow.draw(towerRadius);
 	renderWindow.draw(goldText);
+
+	for each (auto but in buttonSpawner.instances)
+	{
+		renderWindow.draw(*but->node.GetSprite());
+	}
 }
 
 void GameState::ProcessInput(sf::Event currentEvent)
 {
+	if (currentEvent.type == sf::Event::MouseButtonReleased)
+	{
+		if (currentEvent.mouseButton.button == sf::Mouse::Button::Left)
+		{
+			for each (auto button in buttonSpawner.instances)
+			{
+				button->Update(static_cast<sf::Vector2f>(sf::Mouse::getPosition(renderWindow)));
+			}
+		}
+	}
+
 	if (currentEvent.type == sf::Event::KeyPressed)
 	{
 		if (currentEvent.key.code == sf::Keyboard::A)
@@ -366,7 +357,6 @@ void GameState::UpdateEnemies(float deltaTime)
 
 void GameState::PostUpdate()
 {
-
 	for (auto it = deadEnemyVector.begin(); it != deadEnemyVector.end(); ++it)
 	{
 		enemySpawner.mutex.lock();
@@ -416,7 +406,7 @@ void GameState::UpdateWave()
 			}
 			else
 			{
-				// TODO: Add pause time.
+				// TODO: Add pause time?
 				currentWave++;
 				currentData = 0;
 			}
@@ -443,7 +433,7 @@ void GameState::CreateTypes()
 	enemySpawner.AddType(enemy2);
 	enemySpawner.AddType(enemy3);
 
-	Tower tower1(0, 1, 5.f, 100.f, 1.f, 25, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower1.png").resource), "Tower One", projectileSpawner);
+	Tower tower1(0, 1, 5.f, 100.f, 0.5f, 25, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower1.png").resource), "Tower One", projectileSpawner);
 	tower1.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	towerSpawner.AddType(tower1);
 
@@ -451,7 +441,7 @@ void GameState::CreateTypes()
 	tower1.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	towerSpawner.AddType(tower2);
 
-	Tower tower3(2, 2, 9.f, 125.f, 0.9f, 75, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower3.png").resource), "Tower Arcane", projectileSpawner);
+	Tower tower3(2, 2, 9.f, 125.f, 2.0f, 75, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower3.png").resource), "Tower Arcane", projectileSpawner);
 	tower3.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 	towerSpawner.AddType(tower3);
 
@@ -473,4 +463,5 @@ void GameState::DestroyTypes()
 	projectileSpawner.types.clear();
 	enemySpawner.types.clear();
 	towerSpawner.types.clear();
+	buttonSpawner.types.clear();
 }
