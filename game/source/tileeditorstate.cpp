@@ -55,7 +55,7 @@ void TileEditorState::ProcessInput(sf::Event currentEvent)
 {
 	if (currentEvent.type == sf::Event::KeyPressed)
 	{
-		// We map the keycode to 1, 2, 3 for 0, 1, 2 and clamp to 0,2 to ensure it stays valid.
+		// We map the keycodes for 1, 2, 3 for 0, 1, 2 and clamp to 0,2 to ensure it stays valid.
 		currentSelectedTile = std::clamp((int)currentEvent.key.code - sf::Keyboard::Num1, 0, 2);
 		currentTile->setTexture(*tileMap.tileTypes[currentSelectedTile]->getTexture());
 	}

@@ -31,8 +31,6 @@ void MenuState::Initialise()
 		std::cout << "Button clicked" << std::endl;
 	}));
 
-
-
 	auto level1Button = buttonSpawner.Spawn(0);
 	level1Button->Listen(std::bind(&MenuState::PlayButtonClicked1, this));
 	level1Button->SetPosition(320, 320);

@@ -36,7 +36,6 @@ void TileMap::Render(sf::RenderWindow* window)
 				sf::Sprite* sprite = tileTypes[tiles[x][y]];
 				sprite->setPosition(static_cast<float>(x * 32), static_cast<float>(y * 32));
 				window->draw(*sprite);
-			
 		}
 	}
 }
