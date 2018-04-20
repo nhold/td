@@ -26,7 +26,7 @@ public:
 	static const int tileMapSize = 20;
 	int tiles[TileMap::tileMapSize][TileMap::tileMapSize];
 	sf::Sprite* tileTypes[10];
-
+	void ResetToTile(int tileIndex);
 private:
 	Path* path;
 };

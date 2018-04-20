@@ -119,5 +119,14 @@ void Enemy::MoveToCurrentNode(float deltaTime)
 	direction = Normalise(direction);
 	direction = Scale(direction, movementSpeed * deltaTime);
 
+	if (direction.x < 0)
+	{
+		node.GetSprite()->setScale(-1.f, 1.f);
+	}
+	else
+	{
+		node.GetSprite()->setScale(1.f, 1.f);
+	}
+
 	node.SetPosition(node.GetPosition() + direction);
 }

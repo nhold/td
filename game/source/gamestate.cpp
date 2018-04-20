@@ -125,6 +125,7 @@ void GameState::MultithreadedUpdate()
 
 			if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
 				currentLevel.tileMap.tiles[grid.x][grid.y] == 2 ||
+				currentLevel.tileMap.tiles[grid.x][grid.y] == 3 ||
 				currentLevel.buildingMap.isBlocked[grid.x][grid.y])
 			{
 				cursor.setColor(sf::Color::Red);
@@ -249,9 +250,16 @@ void GameState::ProcessInput(sf::Event currentEvent)
 	{
 		if (currentEvent.mouseButton.button == sf::Mouse::Button::Left)
 		{
-			for each (auto button in buttonSpawner.instances)
+			sf::Vector2f mousePosition(currentEvent.mouseButton.x, currentEvent.mouseButton.y);
+
+			//static_cast<sf::Vector2f>(sf::Mouse::getPosition(renderWindow));
+
+			Button* hit = nullptr;
+			buttonSpawner.IsPositionOver(mousePosition, &hit);
+
+			if (hit != nullptr)
 			{
-				button->Update(static_cast<sf::Vector2f>(sf::Mouse::getPosition(renderWindow)));
+				hit->Invoke();
 			}
 		}
 	}
@@ -327,6 +335,7 @@ void GameState::SetLevel(std::string levelFileName)
 	currentLevel.tileMap.tileTypes[0] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/grass.png").resource);
 	currentLevel.tileMap.tileTypes[1] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/dirt.png").resource);
 	currentLevel.tileMap.tileTypes[2] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/water.png").resource);
+	currentLevel.tileMap.tileTypes[3] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/cliff.png").resource);
 }
 
 void GameState::UpdateTowers(float deltaTime)

@@ -22,6 +22,8 @@ public:
 	void SetFont(const sf::Font& font);
 	void SetName(std::string aName);
 
+	bool IsPositionOver(const sf::Vector2f &position);
+
 	sf::Sprite* GetSprite();
 	sf::Text& GetText();
 	std::string GetName();

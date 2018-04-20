@@ -68,6 +68,11 @@ void Node::SetDirection(sf::Vector2f direction)
 	sprite->setRotation(rotAngle);
 }
 
+bool Node::IsPositionOver(const sf::Vector2f &position)
+{
+	return sprite->getGlobalBounds().contains(position);
+}
+
 sf::Vector2f Node::GetPosition()
 {
 	return sprite->getPosition();

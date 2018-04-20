@@ -18,6 +18,7 @@ void TileEditorState::Initialise()
 	tileMap.tileTypes[0] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/grass.png").resource);
 	tileMap.tileTypes[1] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/dirt.png").resource);
 	tileMap.tileTypes[2] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/water.png").resource);
+	tileMap.tileTypes[3] = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/cliff.png").resource);
 
 	currentSelectedTile = 0;
 	currentTile = new sf::Sprite(*tileMap.tileTypes[currentSelectedTile]);
@@ -56,7 +57,11 @@ void TileEditorState::ProcessInput(sf::Event currentEvent)
 	if (currentEvent.type == sf::Event::KeyPressed)
 	{
 		// We map the keycodes for 1, 2, 3 for 0, 1, 2 and clamp to 0,2 to ensure it stays valid.
-		currentSelectedTile = std::clamp((int)currentEvent.key.code - sf::Keyboard::Num1, 0, 2);
+		int nextTile = ((int)currentEvent.key.code - sf::Keyboard::Num1);
+		if (nextTile >= 0 && nextTile < 4) // Ensure it's an actual numerical keycode.
+			currentSelectedTile = std::clamp(nextTile, 0, 3);
+
+		printf("Current Selected Tile: %i\n/n", currentSelectedTile);
 		currentTile->setTexture(*tileMap.tileTypes[currentSelectedTile]->getTexture());
 	}
 
@@ -65,6 +70,12 @@ void TileEditorState::ProcessInput(sf::Event currentEvent)
 		if (currentEvent.key.code == sf::Keyboard::S)
 		{
 			tileMap.SaveToFile("assets/temporary.txt");
+		}
+
+		if (currentEvent.key.code == sf::Keyboard::R)
+		{
+			printf("Current Selected Tile: %i", currentSelectedTile);
+			tileMap.ResetToTile(currentSelectedTile);
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::Escape)

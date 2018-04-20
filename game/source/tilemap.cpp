@@ -30,8 +30,8 @@ void TileMap::Render(sf::RenderWindow* window)
 	{
 		for (int y = 0; y < tileMapSize; y++)
 		{
-			if (tiles[x][y] > 2)
-				tiles[x][y] = 2;
+			if (tiles[x][y] > 3)
+				tiles[x][y] = 3;
 
 				sf::Sprite* sprite = tileTypes[tiles[x][y]];
 				sprite->setPosition(static_cast<float>(x * 32), static_cast<float>(y * 32));
@@ -109,3 +109,18 @@ void TileMap::SaveToFile(const std::string& fileName)
 	}
 }
 
+void TileMap::ResetToTile(int tileIndex)
+{
+	if (tileIndex > 3)
+	{
+		tileIndex = 3;
+	}
+
+	for (int x = 0; x < tileMapSize; x++)
+	{
+		for (int y = 0; y < tileMapSize; y++)
+		{
+			tiles[x][y] = tileIndex;
+		}
+	}
+}

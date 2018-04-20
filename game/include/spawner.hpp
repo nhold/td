@@ -63,6 +63,20 @@ public:
 		}
 	}
 
+	bool IsPositionOver(const sf::Vector2f &position, T** outHit)
+	{
+		for (auto it = instances.begin(); it != instances.end(); ++it)
+		{
+			if ((*it)->node.IsPositionOver(position))
+			{
+				*outHit = (*it);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	std::vector<T*> InArea(sf::Vector2f center, float radius)
 	{
 		std::vector<T*> withinArea;

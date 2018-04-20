@@ -72,6 +72,7 @@ void Game::ProcessEvents()
 	{
 		if (event.type == sf::Event::Closed)
 		{
+
 			window.close();
 		}
 
