@@ -88,7 +88,8 @@ void GameState::Shutdown()
 	running = false;
 	//updateThread->join(); - Fix this.
 
-	enemySpawner.DespawnAll();
+	enemySystem.DespawnAll();
+
 	towerSpawner.DespawnAll();
 	projectileSpawner.DespawnAll();
 	buttonSpawner.DespawnAll();
@@ -104,6 +105,11 @@ void GameState::Update()
 
 void GameState::MultithreadedUpdate()
 {
+	enemySystem.EnemyKilled = [this](Enemy* b)
+	{
+		currentGold += b->worth;
+	};
+	
 	while (running)
 	{
 		auto mousePosition = sf::Vector2f(sf::Mouse::getPosition(renderWindow));
@@ -120,7 +126,6 @@ void GameState::MultithreadedUpdate()
 					break;
 			}
 
-			
 			auto grid = Game::WorldToArray(mousePosition);
 
 			if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
@@ -166,13 +171,13 @@ void GameState::MultithreadedUpdate()
 			"\n" + "Next Enemy: " + std::to_string(time));
 
 		PostUpdate();
+		UpdateWave(threadDeltaTime);
+		enemySystem.Update(threadDeltaTime);
 
-		UpdateWave();
-		UpdateEnemies(threadDeltaTime);
-
-		enemySpawner.mutex.lock();
-		currentLevel.base->Update(enemySpawner.instances);
-		enemySpawner.mutex.unlock();
+		// TODO: Pass in the enemyspawner?
+		enemySystem.mutex.lock();
+		currentLevel.base->Update(enemySystem.instances);
+		enemySystem.mutex.unlock();
 
 		UpdateTowers(threadDeltaTime);
 
@@ -180,7 +185,7 @@ void GameState::MultithreadedUpdate()
 		for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
 		{
 			auto projectile = (*it);
-			projectile->Update(enemySpawner, threadDeltaTime);
+			projectile->Update(enemySystem, threadDeltaTime);
 
 			if (!projectile->node.isAlive)
 			{
@@ -189,7 +194,7 @@ void GameState::MultithreadedUpdate()
 		}
 		projectileSpawner.mutex.unlock();
 
-		if (enemySpawner.instances.size() == 0 && currentWave >= currentLevel.waves.size() || currentLevel.base->health <= 0)
+		if (enemySystem.instances.size() == 0 && currentWave >= currentLevel.waves.size() || currentLevel.base->health <= 0)
 		{
 			running = false;
 		}
@@ -218,13 +223,7 @@ void GameState::Render()
 	}
 	towerSpawner.mutex.unlock();
 
-	enemySpawner.mutex.lock();
-	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
-	{
-		renderWindow.draw(*(*it)->node.GetSprite());
-		(*it)->RenderHealthbars(renderWindow);
-	}
-	enemySpawner.mutex.unlock();
+	enemySystem.Render(renderWindow);
 
 	projectileSpawner.mutex.lock();
 	for (auto it = projectileSpawner.instances.begin(); it != projectileSpawner.instances.end(); ++it)
@@ -268,24 +267,24 @@ void GameState::ProcessInput(sf::Event currentEvent)
 	{
 		if (currentEvent.key.code == sf::Keyboard::A)
 		{
-			enemySpawner.mutex.lock();
+			enemySystem.mutex.lock();
 			int dice_roll = distribution(generator);
-			enemySpawner.Spawn(dice_roll);
-			enemySpawner.mutex.unlock();
+			enemySystem.Spawn(dice_roll);
+			enemySystem.mutex.unlock();
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::Space)
 		{
-			enemySpawner.mutex.lock();
-			enemySpawner.Spawn(2);
-			enemySpawner.mutex.unlock();
+			enemySystem.mutex.lock();
+			enemySystem.Spawn(2);
+			enemySystem.mutex.unlock();
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::D)
 		{
-			enemySpawner.mutex.lock();
-			enemySpawner.DespawnBack();
-			enemySpawner.mutex.unlock();
+			enemySystem.mutex.lock();
+			enemySystem.DespawnBack();
+			enemySystem.mutex.unlock();
 		}
 
 		if (currentEvent.key.code == sf::Keyboard::Escape)
@@ -343,44 +342,14 @@ void GameState::UpdateTowers(float deltaTime)
 	towerSpawner.mutex.lock();
 	for (auto it = towerSpawner.instances.begin(); it != towerSpawner.instances.end(); ++it)
 	{
-		(*it)->Update(enemySpawner, deltaTime);
+		(*it)->Update(enemySystem, deltaTime);
 	}
 	towerSpawner.mutex.unlock();
 }
 
-void GameState::UpdateEnemies(float deltaTime)
-{
-	enemySpawner.mutex.lock();
-	for (auto it = enemySpawner.instances.begin(); it != enemySpawner.instances.end(); ++it)
-	{
-		auto enemy = (*it);
-		enemy->Update(deltaTime);
-
-		if (!enemy->node.isAlive)
-		{
-			deadEnemyVector.push_back(enemy);
-		}
-	}
-	enemySpawner.mutex.unlock();
-}
 
 void GameState::PostUpdate()
 {
-	for (auto it = deadEnemyVector.begin(); it != deadEnemyVector.end(); ++it)
-	{
-		enemySpawner.mutex.lock();
-		auto killIt = std::find(enemySpawner.instances.begin(), enemySpawner.instances.end(), (*it));
-
-		if (killIt != enemySpawner.instances.end())
-		{
-			currentGold += (*killIt)->worth;
-			enemySpawner.instances.erase(killIt);
-			delete (*it);
-		}
-		enemySpawner.mutex.unlock();
-	}
-
-
 	for (auto it = deadProjectileVector.begin(); it != deadProjectileVector.end(); ++it)
 	{
 		projectileSpawner.mutex.lock();
@@ -395,23 +364,22 @@ void GameState::PostUpdate()
 	}
 
 	deadProjectileVector.clear();
-	deadEnemyVector.clear();
 }
 
-void GameState::UpdateWave()
+void GameState::UpdateWave(float deltaTime)
 {
 	if (currentWave < currentLevel.waves.size())
 	{
-		time -= Game::deltaTime;
+		time -= deltaTime;
 		if (time <= 0)
 		{
 			if (currentData < currentLevel.waves[currentWave].enemySpawnData.size())
 			{
-				enemySpawner.mutex.lock();
+				enemySystem.mutex.lock();
 				time = currentLevel.waves[currentWave].enemySpawnData[currentData].spawnTime;
-				enemySpawner.Spawn(currentLevel.waves[currentWave].enemySpawnData[currentData].type);
+				enemySystem.Spawn(currentLevel.waves[currentWave].enemySpawnData[currentData].type);
 				currentData++;
-				enemySpawner.mutex.unlock();
+				enemySystem.mutex.unlock();
 			}
 			else
 			{
@@ -438,9 +406,9 @@ void GameState::CreateTypes()
 	enemy3.node.SetPosition(Game::GridToWorld(currentLevel.path->nodePoints[0]));
 	enemy3.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
 
-	enemySpawner.AddType(enemy1);
-	enemySpawner.AddType(enemy2);
-	enemySpawner.AddType(enemy3);
+	enemySystem.AddType(enemy1);
+	enemySystem.AddType(enemy2);
+	enemySystem.AddType(enemy3);
 
 	Tower tower1(0, 1, 5.f, 100.f, 0.5f, 25, new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower1.png").resource), "Tower One", projectileSpawner);
 	tower1.node.SetFont(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf").resource);
@@ -470,7 +438,7 @@ void GameState::CreateTypes()
 void GameState::DestroyTypes()
 {
 	projectileSpawner.types.clear();
-	enemySpawner.types.clear();
+	enemySystem.types.clear();
 	towerSpawner.types.clear();
 	buttonSpawner.types.clear();
 }

@@ -5,6 +5,7 @@
 #include <vectorutility.hpp>
 #include <node.hpp>
 
+
 Tower::Tower(int projectileID, int allowedTargetCount, float buildTime, float radius, float fireRate, int cost, sf::Sprite* sprite, std::string name, Spawner<Projectile>& projectileSpawner) : projectileSpawner(projectileSpawner)
 {
 	this->projectileID = projectileID;
@@ -15,6 +16,7 @@ Tower::Tower(int projectileID, int allowedTargetCount, float buildTime, float ra
 	this->radius = radius;
 	this->fireRate = fireRate;
 	this->cost = cost;
+
 	currentRate = fireRate;
 	
 	isBuilding = false;
@@ -23,13 +25,14 @@ Tower::Tower(int projectileID, int allowedTargetCount, float buildTime, float ra
 Tower::Tower(const Tower & otherTower) : node(otherTower.node), projectileSpawner(otherTower.projectileSpawner)
 {
 	this->projectileID = otherTower.projectileID;
-	numberOfTargets = otherTower.numberOfTargets;
+	this->numberOfTargets = otherTower.numberOfTargets;
 	this->buildTime = otherTower.buildTime;
 	this->radius = otherTower.radius;
 	this->fireRate = otherTower.fireRate;
 	this->cost = otherTower.cost;
-	currentRate = fireRate;
+	this->isBuilding = otherTower.isBuilding;
 
+	currentRate = fireRate;
 	targets = otherTower.targets;
 }
 
@@ -37,7 +40,7 @@ Tower::~Tower()
 {
 }
 
-void Tower::Update(Spawner<Enemy>& enemySpawner, float deltaTime)
+void Tower::Update(EnemySpawner& enemySpawner, float deltaTime)
 {
 	if (isBuilding)
 	{
@@ -84,7 +87,7 @@ sf::VertexArray Tower::GetDebugLines()
 	return vertexArray;
 }
 
-void Tower::RemoveDeadTargets(Spawner<Enemy>& enemySpawner)
+void Tower::RemoveDeadTargets(EnemySpawner& enemySpawner)
 {
 	std::vector<Enemy*> removeVec;
 	for each (auto enemy in targets)
@@ -116,7 +119,7 @@ void Tower::RemoveDeadTargets(Spawner<Enemy>& enemySpawner)
 
 }
 
-void Tower::FindTarget(Spawner<Enemy>& enemiesSpawner)
+void Tower::FindTarget(EnemySpawner& enemiesSpawner)
 {
 	if (targets.size() >= numberOfTargets)
 		return;

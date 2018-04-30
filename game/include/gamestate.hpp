@@ -5,6 +5,7 @@
 #include <state.hpp>
 #include <statemachine.hpp>
 #include <button.hpp>
+#include <enemyspawner.hpp>
 
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -41,7 +42,8 @@ private:
 	sf::CircleShape towerRadius;
 	sf::RenderWindow& renderWindow;
 	std::thread* updateThread;
-	Spawner<Enemy> enemySpawner;
+
+	EnemySpawner enemySystem;
 	Spawner<Tower> towerSpawner;
 	Spawner<Projectile> projectileSpawner;
 	Spawner<Button> buttonSpawner;
@@ -56,7 +58,6 @@ private:
 	sf::Text goldText;
 	sf::Sprite cursor;
 
-	std::vector<Enemy*> deadEnemyVector;
 	std::vector<Projectile*> deadProjectileVector;
 
 	int currentWave;
@@ -65,8 +66,8 @@ private:
 	float time = 0.1f;
 	float threadDeltaTime;
 	sf::Clock clock;
-	void UpdateWave();
-	void UpdateEnemies(float deltaTime);
+
+	void UpdateWave(float deltaTime);
 	void UpdateTowers(float deltaTime);
 	void PostUpdate();
 
