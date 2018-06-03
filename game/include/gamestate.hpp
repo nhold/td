@@ -24,6 +24,7 @@ public:
 	~GameState();
 
 	virtual void Initialise() override;
+	void SetupBuildTowerButtons();
 	virtual void Shutdown() override;
 	virtual void Update() override;
 	void MultithreadedUpdate();
@@ -46,7 +47,7 @@ private:
 	EnemySpawner enemySystem;
 	Spawner<Tower> towerSpawner;
 	Spawner<Projectile> projectileSpawner;
-	Spawner<Button> buttonSpawner;
+	NodeSystem<Button> buttonSpawner;
 
 	AssetDatabase& assetDatabase;
 

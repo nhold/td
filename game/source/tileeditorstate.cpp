@@ -41,7 +41,7 @@ void TileEditorState::Update()
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
 			auto arrayPoint = Game::WorldToArray(mousePosition);
-			tileMap.tiles[arrayPoint.x][arrayPoint.y] = currentSelectedTile;
+			tileMap.tiles[tileMap.index(arrayPoint.x, arrayPoint.y)] = currentSelectedTile;
 		}
 	}
 }

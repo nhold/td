@@ -33,34 +33,7 @@ void GameState::Initialise()
 		return;
 	}
 
-	sf::Font* buttonFont = new sf::Font(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf"));
-	sf::Sprite* towerSprite1 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower1.png"));
-	sf::Sprite* towerSprite2 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower2.png"));
-	sf::Sprite* towerSprite3 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower3.png"));
-
-	buttonSpawner.AddType(Button(towerSprite1, buttonFont, "", [] {
-		
-	}));
-
-	buttonSpawner.AddType(Button(towerSprite2, buttonFont, "", [] {
-
-	}));
-
-	buttonSpawner.AddType(Button(towerSprite3, buttonFont, "", [] {
-
-	}));
-
-	auto tower1Button = buttonSpawner.Spawn(0);
-	tower1Button->Listen(std::bind(&GameState::UpdateSelectedTower, this, 0));
-	tower1Button->node.SetPosition(16, 624);
-
-	auto tower2Button = buttonSpawner.Spawn(1);
-	tower2Button->Listen(std::bind(&GameState::UpdateSelectedTower, this, 1));
-	tower2Button->node.SetPosition(48, 624);
-
-	auto tower3Button = buttonSpawner.Spawn(2);
-	tower3Button->Listen(std::bind(&GameState::UpdateSelectedTower, this, 2));
-	tower3Button->node.SetPosition(80, 624);
+	SetupBuildTowerButtons();
 
 	running = true;
 	currentSelectedTower = 0;
@@ -83,16 +56,39 @@ void GameState::Initialise()
 	threadDeltaTime = 0.0f;
 }
 
+void GameState::SetupBuildTowerButtons()
+{
+	sf::Font* buttonFont = new sf::Font(assetDatabase.fontHandler.GetResource("assets/Consolas.ttf"));
+
+	sf::Sprite* towerSprite1 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower1.png"));
+	sf::Sprite* towerSprite2 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower2.png"));
+	sf::Sprite* towerSprite3 = new sf::Sprite(assetDatabase.textureHandler.GetResource("assets/tower3.png"));
+
+	auto tower1Button = new Button(towerSprite1, buttonFont, "", std::bind(&GameState::UpdateSelectedTower, this, 0));
+	tower1Button->node.SetPosition(16, 624);
+
+	auto tower2Button = new Button(towerSprite2, buttonFont, "", std::bind(&GameState::UpdateSelectedTower, this, 1));
+	tower2Button->node.SetPosition(48, 624);
+
+	auto tower3Button = new Button(towerSprite3, buttonFont, "", std::bind(&GameState::UpdateSelectedTower, this, 1));
+	tower3Button->node.SetPosition(80, 624);
+
+	buttonSpawner.instances.push_back(tower1Button);
+	buttonSpawner.instances.push_back(tower2Button);
+	buttonSpawner.instances.push_back(tower3Button);
+}
+
 void GameState::Shutdown()
 {
 	running = false;
-	//updateThread->join(); - Fix this.
+
+	//updateThread->join(); // TODO: This will throw an exception. Not sure why.
 
 	enemySystem.DespawnAll();
-
 	towerSpawner.DespawnAll();
 	projectileSpawner.DespawnAll();
 	buttonSpawner.DespawnAll();
+
 	DestroyTypes();
 	
 	currentLevel.Clear();
@@ -100,7 +96,7 @@ void GameState::Shutdown()
 
 void GameState::Update()
 {
-	// Empty
+	// STUB: Specifically because we run our update in another thread.
 }
 
 void GameState::MultithreadedUpdate()
@@ -128,9 +124,9 @@ void GameState::MultithreadedUpdate()
 
 			auto grid = Game::WorldToArray(mousePosition);
 
-			if (currentLevel.tileMap.tiles[grid.x][grid.y] == 1 ||
-				currentLevel.tileMap.tiles[grid.x][grid.y] == 2 ||
-				currentLevel.tileMap.tiles[grid.x][grid.y] == 3 ||
+			if (currentLevel.tileMap.tiles[currentLevel.tileMap.index(grid.x, grid.y)] == 1 ||
+				currentLevel.tileMap.tiles[currentLevel.tileMap.index(grid.x, grid.y)] == 2 ||
+				currentLevel.tileMap.tiles[currentLevel.tileMap.index(grid.x, grid.y)] == 3 ||
 				currentLevel.buildingMap.isBlocked[grid.x][grid.y])
 			{
 				cursor.setColor(sf::Color::Red);
@@ -440,5 +436,4 @@ void GameState::DestroyTypes()
 	projectileSpawner.types.clear();
 	enemySystem.types.clear();
 	towerSpawner.types.clear();
-	buttonSpawner.types.clear();
 }

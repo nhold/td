@@ -24,6 +24,7 @@ void EnemySpawner::Render(sf::RenderWindow& window)
 	for (auto it = instances.begin(); it != instances.end(); ++it)
 	{
 		window.draw(*(*it)->node.GetSprite());
+
 		(*it)->RenderHealthbars(window);
 	}
 	mutex.unlock();

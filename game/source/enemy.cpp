@@ -23,12 +23,13 @@ Enemy::Enemy(int health, int movementSpeed, int damage, int worth, sf::Sprite* s
 	node.SetSprite(sprite);
 	node.SetName(name);
 	node.SetOrigin(0.5f, 0.9f);
+
 	currentHealth = health;
 	maximumHealth = currentHealth;
 	this->movementSpeed = movementSpeed;
 	this->damage = damage;
-	SetPath(path);
 	this->worth = worth;
+	SetPath(path);
 	currentNode = 0;
 	healthBarSprite = CreateTempSprite(sf::Color::Green, 32, 8);
 	healthBarSprite->setOrigin(16, 4);
@@ -90,7 +91,7 @@ void Enemy::Update(float deltaTime)
 void Enemy::RenderHealthbars(sf::RenderWindow & window)
 {
 	healthBarSprite->setPosition(node.GetPosition() + sf::Vector2f(0.0f, -32.f));
-	healthBarSprite->setScale(MapRange(0, maximumHealth, currentHealth, 0.0f, 1.0f), 1.0f);
+	healthBarSprite->setScale(MapRange(0.f, maximumHealth, currentHealth, 0.0f, 1.0f), 1.0f);
 
 	window.draw(*healthBarSprite);
 }

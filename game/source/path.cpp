@@ -10,7 +10,7 @@ Path::Path(TileMap& tileMap)
 
 		for (int x = 0; x < TileMap::tileMapSize; x++)
 		{
-			if (tileMap.tiles[x][y] == 1)
+			if (tileMap.tiles[tileMap.index(x,y)] == 1)
 			{
 				nodePoints.push_back(sf::Vector2i(x, y));
 				foundFirst = true;
@@ -31,7 +31,7 @@ Path::Path(TileMap& tileMap)
 
 		if (tileMap.WithinBounds(right))
 		{
-			if (tileMap.tiles[right.x][right.y] == 1 && !HasPoint(right))
+			if (tileMap.tiles[tileMap.index(right.x, right.y)] == 1 && !HasPoint(right))
 			{
 				nodePoints.push_back(right);
 				continue;
@@ -40,7 +40,7 @@ Path::Path(TileMap& tileMap)
 
 		if (tileMap.WithinBounds(left))
 		{
-			if (tileMap.tiles[left.x][left.y] == 1 && !HasPoint(left))
+			if (tileMap.tiles[tileMap.index(left.x,left.y)] == 1 && !HasPoint(left))
 			{
 				nodePoints.push_back(left);
 				continue;
@@ -49,7 +49,7 @@ Path::Path(TileMap& tileMap)
 
 		if (tileMap.WithinBounds(up))
 		{
-			if (tileMap.tiles[up.x][up.y] == 1 && !HasPoint(up))
+			if (tileMap.tiles[tileMap.index(up.x, up.y)] == 1 && !HasPoint(up))
 			{
 				nodePoints.push_back(up);
 				continue;
@@ -58,7 +58,7 @@ Path::Path(TileMap& tileMap)
 
 		if (tileMap.WithinBounds(down))
 		{
-			if (tileMap.tiles[down.x][down.y] == 1 && !HasPoint(down))
+			if (tileMap.tiles[tileMap.index(down.x, down.y)] == 1 && !HasPoint(down))
 			{
 				nodePoints.push_back(down);
 				continue;
