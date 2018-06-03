@@ -2,7 +2,7 @@
 2D TD game in C++ with the SFML library.
 
 
-![td.png](td.png)
+![progress1.png](progress1.png)
 
 ## TODO
 
